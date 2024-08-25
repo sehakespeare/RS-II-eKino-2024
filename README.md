@@ -29,7 +29,7 @@
 ## Pokretanje aplikacija
 1. Kloniranje repozitorija
   ```
-  https://github.com/sehakespeare/RS-II-eKino2024.git
+  https://github.com/sehakespeare/RS-II-eKino-2024.git
   ```
 2. Otvoriti klonirani repozitorij u konzoli
 3. Pokretanje dokerizovanog API-ja i DB-a
