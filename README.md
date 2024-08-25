@@ -37,13 +37,13 @@
   docker-compose build
   docker-compose up
   ```
-4. Otvoriti eKino folder
+4. Otvoriti RS-II-eKino-2024 folder
   ```
-  cd eKino
+  cd RS-II-eKino-2024 
   ```
 5. Otvoriti ekinomobile folder
   ```
-  cd ekinomobile
+  cd e_kino_mobile
   ```
 6. Dohvatanje dependency-a
   ```
