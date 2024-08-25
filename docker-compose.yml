@@ -1,0 +1,77 @@
+version: '3'
+services:
+  # MSSQL docker
+  ekino-sql:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    restart: unless-stopped
+    environment:
+      - SA_PASSWORD=QWElkj132!
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+    ports:
+      - 1401:1433
+    expose:
+      - 1433
+    networks:
+      - ekinonet
+
+  # eKino api
+  ekino-api:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=ekino-sql,1433;Database=eKino;User=sa;Password=QWElkj132!;ConnectRetryCount=0
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=username
+      - RABBITMQ_PASSWORD=test
+      - RABBITMQ_VIRTUALHOST=/
+    ports:
+      - 5000:80
+    networks:
+      - ekinonet
+    links:
+      - ekino-sql
+    depends_on:
+      - ekino-sql
+
+  # RabbitMQ service
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=username
+      - RABBITMQ_DEFAULT_PASS=test
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - 5672
+    networks:
+      - ekinonet
+
+  # Email Subscriber Service
+  ekino-email-subscriber:
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile.mailservice
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=username
+      - RABBITMQ_PASSWORD=test
+      - RABBITMQ_VIRTUALHOST=/
+    depends_on:
+      - rabbitmq
+      - ekino-sql
+      - ekino-api
+    networks:
+      - ekinonet
+    ports:
+      - 7011:80
+
+networks:
+  ekinonet:
+    driver: bridge

@@ -1,0 +1,27 @@
+# Dockerfile for eKino.EmailSubscriber
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 7011
+ENV ASPNETCORE_URLS=http://+:7011
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["./eKino.EmailSubscriber/eKino.EmailSubscriber.csproj", "eKino.EmailSubscriber/"]
+COPY ["eKino.Model/eKino.Model.csproj", "eKino.Model/"]
+
+RUN dotnet restore "eKino.EmailSubscriber/eKino.EmailSubscriber.csproj"
+
+COPY . .
+WORKDIR "/src/eKino.EmailSubscriber"
+RUN dotnet build "eKino.EmailSubscriber.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "eKino.EmailSubscriber.csproj" -c Release -o /app
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app .
+
+ENTRYPOINT ["dotnet", "eKino.EmailSubscriber.dll"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
