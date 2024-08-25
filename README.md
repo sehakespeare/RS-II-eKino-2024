@@ -21,20 +21,10 @@
   Broj kartice: 4242 4242 4242 4242
   ```
 
-<<<<<<< HEAD
-  ------------------------------------
-=======
-  -----------------------------------
->>>>>>> ced4d43a25b59e4dfe4cd0c9468a4f9bbd9559da
 #### NAPOMENA
   ```
   Report I u desktop dijelu testirati preko filma "Love in the Villa".
   ```
-<<<<<<< HEAD
-  ------------------------------------
-=======
-  -----------------------------------
->>>>>>> ced4d43a25b59e4dfe4cd0c9468a4f9bbd9559da
 
 ## Pokretanje aplikacija
 1. Kloniranje repozitorija
