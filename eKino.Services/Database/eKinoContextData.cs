@@ -469,15 +469,7 @@ namespace eKino.Services.Database
             modelBuilder.Entity<Projection>().HasData(new Projection()
             {
                 ProjectionId = ++ProjectionID,
-                DateOfProjection = new DateTime(2024, 9, 15, 20, 0, 0),
-                AuditoriumId = (ProjectionID % 5) + 1,
-                MovieId = ProjectionID,
-                TicketPrice = 10.00m
-            });
-            modelBuilder.Entity<Projection>().HasData(new Projection()
-            {
-                ProjectionId = ++ProjectionID,
-                DateOfProjection = new DateTime(2024, 9, 15, 20, 0, 0),
+                DateOfProjection = new DateTime(2024, 10, 15, 20, 0, 0),
                 AuditoriumId = (ProjectionID % 5) + 1,
                 MovieId = ProjectionID,
                 TicketPrice = 10.00m
@@ -487,15 +479,7 @@ namespace eKino.Services.Database
                 ProjectionId = ++ProjectionID,
                 DateOfProjection = new DateTime(2024, 10, 15, 20, 0, 0),
                 AuditoriumId = (ProjectionID % 5) + 1,
-                MovieId = 5,
-                TicketPrice = 10.00m
-            });
-            modelBuilder.Entity<Projection>().HasData(new Projection()
-            {
-                ProjectionId = ++ProjectionID,
-                DateOfProjection = new DateTime(2024, 10, 18, 20, 0, 0),
-                AuditoriumId = (ProjectionID % 5) + 1,
-                MovieId = 6,
+                MovieId = ProjectionID,
                 TicketPrice = 10.00m
             });
             #endregion
