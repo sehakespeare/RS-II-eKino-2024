@@ -1,4 +1,3 @@
-import 'package:e_kino_desktop/models/report.dart';
 import 'package:e_kino_desktop/providers/direktor_provider.dart';
 import 'package:e_kino_desktop/providers/genre_provider.dart';
 import 'package:e_kino_desktop/providers/report_all_provider.dart';
@@ -22,7 +21,6 @@ import 'providers/users_provider.dart';
 import 'screens/genre/genre_screen.dart';
 import 'screens/user_profile/login_screen.dart';
 
-//
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   return runApp(MultiProvider(

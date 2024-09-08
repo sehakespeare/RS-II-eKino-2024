@@ -1,6 +1,8 @@
+import 'package:e_kino_mobile/.env';
 import 'package:e_kino_mobile/providers/recommender_provider.dart';
 import 'package:e_kino_mobile/screens/user_profile/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:e_kino_mobile/providers/auditorium_provider.dart';
 import 'package:e_kino_mobile/providers/movies_provider.dart';
@@ -12,6 +14,7 @@ import 'package:e_kino_mobile/providers/users_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = stripePublishableKey;
   return runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => MoviesProvider()),

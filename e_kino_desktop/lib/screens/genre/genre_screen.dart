@@ -236,12 +236,20 @@ class _GenreScreenState extends State<GenreScreen> {
                 headingRowColor: MaterialStateProperty.all(
                     const Color.fromARGB(255, 46, 92, 232)),
                 showEmptyRows: false,
-                source: _DataSource(data: result!.result),
+                source: _DataSource(data: result!.result, context: context),
                 columns: const [
                   DataColumn(
                     label: Expanded(
                       child: Text(
                         'Name',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        '',
                         style: TextStyle(fontStyle: FontStyle.italic),
                       ),
                     ),
@@ -264,8 +272,9 @@ class _GenreScreenState extends State<GenreScreen> {
 
 class _DataSource extends DataTableSource {
   final List<Genre> data;
+  final BuildContext context;
 
-  _DataSource({required this.data});
+  _DataSource({required this.data, required this.context});
   Color _getDataRowColor(Set<MaterialState> states) {
     const Set<MaterialState> interactiveStates = <MaterialState>{
       MaterialState.pressed,
@@ -291,6 +300,18 @@ class _DataSource extends DataTableSource {
     return DataRow(cells: [
       DataCell(
         Text('${e.name.toString()}'),
+      ),
+      DataCell(
+        const Text('Edit'),
+        onTap: () async {
+          GenreData.id = e.genreId;
+          GenreData.name = e.name;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const AddGenreScreen(),
+            ),
+          );
+        },
       ),
       DataCell(
         const Text('Delete'),

@@ -198,6 +198,11 @@ class _DirektorsScreenState extends State<DirektorsScreen> {
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () async {
+              DirectorData.id = null;
+              DirectorData.name = null;
+              DirectorData.biography = null;
+              DirectorData.photo = null;
+
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const AddDirektorsScreen(),
@@ -239,12 +244,20 @@ class _DirektorsScreenState extends State<DirektorsScreen> {
                 headingRowColor: MaterialStateProperty.all(
                     const Color.fromARGB(255, 46, 92, 232)),
                 showEmptyRows: false,
-                source: _DataSource(data: result!.result),
+                source: _DataSource(data: result!.result, context: context),
                 columns: const [
                   DataColumn(
                     label: Expanded(
                       child: Text(
                         'Name',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        '',
                         style: TextStyle(fontStyle: FontStyle.italic),
                       ),
                     ),
@@ -267,8 +280,9 @@ class _DirektorsScreenState extends State<DirektorsScreen> {
 
 class _DataSource extends DataTableSource {
   final List<Direktor> data;
+  final BuildContext context;
 
-  _DataSource({required this.data});
+  _DataSource({required this.data, required this.context});
   Color _getDataRowColor(Set<MaterialState> states) {
     const Set<MaterialState> interactiveStates = <MaterialState>{
       MaterialState.pressed,
@@ -294,6 +308,20 @@ class _DataSource extends DataTableSource {
     return DataRow(cells: [
       DataCell(
         Text('${e.fullName.toString()}'),
+      ),
+      DataCell(
+        const Text('Edit'),
+        onTap: () async {
+          DirectorData.id = e.directorId;
+          DirectorData.name = e.fullName;
+          DirectorData.biography = e.biography;
+          DirectorData.photo = e.photo;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const AddDirektorsScreen(),
+            ),
+          );
+        },
       ),
       DataCell(
         const Text('Delete'),

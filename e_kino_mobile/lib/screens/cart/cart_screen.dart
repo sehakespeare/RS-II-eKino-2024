@@ -1,14 +1,11 @@
-import 'dart:convert';
-
 import 'package:e_kino_mobile/models/transaction.dart';
 import 'package:e_kino_mobile/providers/transaction_provider.dart';
 import 'package:e_kino_mobile/screens/drawer_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import "../../.env";
+import '../../providers/stripe_provider.dart';
 import '../../utils/util.dart';
-import 'package:http/http.dart' as http;
 
 class CartScreen extends StatefulWidget {
   const CartScreen({
@@ -23,18 +20,18 @@ class _CartScreenState extends State<CartScreen> {
   Map<String, dynamic>? paymentIntentData;
   Transaction? data;
   TransactionProvider? _transactionProvider;
+  StripeProvider? _stripeProvider;
 
   @override
   void initState() {
     _transactionProvider = TransactionProvider();
+    _stripeProvider = StripeProvider();
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsFlutterBinding.ensureInitialized();
-    Stripe.publishableKey = stripePublishableKey;
     final totalAmount = CartRouteData.projection != null
         ? (CartRouteData.projection!.ticketPrice! *
                 (CartRouteData.reservationSaveValue!['numTickets']))
@@ -79,7 +76,7 @@ class _CartScreenState extends State<CartScreen> {
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            "Kolicina: ${CartRouteData.reservationSaveValue?['numTickets'] ?? 0}",
+                            "Količina: ${CartRouteData.reservationSaveValue?['numTickets'] ?? 0}",
                             style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
@@ -108,7 +105,7 @@ class _CartScreenState extends State<CartScreen> {
                     double.parse(totalAmount),
                   ),
                   child: const Text(
-                    'Placanje',
+                    'Plaćanje',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white),
                   ),
@@ -122,8 +119,8 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> makePayment(double iznos) async {
     try {
-      paymentIntentData =
-          await createPaymentIntent((iznos * 100).round().toString(), 'bam');
+      paymentIntentData = await _stripeProvider?.createPaymentIntent(
+          (iznos * 100).round().toString(), 'bam');
       await Stripe.instance
           .initPaymentSheet(
               paymentSheetParameters: SetupPaymentSheetParameters(
@@ -138,7 +135,7 @@ class _CartScreenState extends State<CartScreen> {
             builder: (_) => const AlertDialog(
                   content: Text("Poništena transakcija!"),
                 ));
-        throw Exception("Placanje odbijeno");
+        throw Exception("Plaćanje odbijeno");
       });
 
       try {
@@ -163,28 +160,7 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  createPaymentIntent(String amount, String currency) async {
-    try {
-      Map<String, dynamic> body = {
-        'amount': amount,
-        'currency': currency,
-        'payment_method_types[]': 'card'
-      };
-
-      var response = await http.post(
-          Uri.parse('https://api.stripe.com/v1/payment_intents'),
-          body: body,
-          headers: {
-            'Authorization': 'Bearer $stripeSecretKey',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          });
-      return jsonDecode(response.body);
-    } catch (err) {
-      Exception('error charging user: ${err.toString()}');
-    }
-  }
-
-  insertUplata(int transactionId) async {
+  Future<void> insertUplata(int transactionId) async {
     Map transakcija = {
       "userId": int.parse(CartRouteData.transactionSaveValue?['userId']),
       "reservationId": transactionId,

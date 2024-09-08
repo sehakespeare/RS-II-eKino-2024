@@ -5,17 +5,11 @@ import 'package:e_kino_desktop/models/user.dart';
 import 'package:e_kino_desktop/providers/projections_provider.dart';
 import 'package:e_kino_desktop/providers/reservation_provider.dart';
 import 'package:e_kino_desktop/providers/users_provider.dart';
-
 import 'package:flutter/material.dart';
-
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-
 import 'package:provider/provider.dart';
-
 import '../../appbar.dart';
-
 import '../../models/search_result.dart';
-
 import '../../utils/util.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -157,14 +151,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 24.0),
-              child: Container(
+              child: SizedBox(
                 height: 80,
                 width: 120,
                 child: FormBuilderDropdown<String>(
                   name: 'ProjectionId',
                   decoration: const InputDecoration(labelText: "Projekcija"),
                   items: resultProjection?.result
-                          ?.map(
+                          .map(
                             (movie) => DropdownMenuItem(
                               value: movie.projectionId.toString(),
                               child: Text(movie.movie?.title ?? ''),
@@ -181,14 +175,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 24.0),
-              child: Container(
+              child: SizedBox(
                 height: 80,
                 width: 120,
                 child: FormBuilderDropdown<String>(
                   name: 'UserId',
                   decoration: const InputDecoration(labelText: "User"),
                   items: resultUsers?.result
-                          ?.map(
+                          .map(
                             (user) => DropdownMenuItem(
                               value: user.userId.toString(),
                               child: Text(user.username ?? ''),
@@ -367,8 +361,8 @@ class _DataSource extends DataTableSource {
               Projection(null, DateTime.now(), null, null, null, null),
         );
 
-        if (foundElement?.movie != null) {
-          return foundElement!.movie!.title!;
+        if (foundElement.movie != null) {
+          return foundElement.movie!.title!;
         }
       }
 

@@ -1,8 +1,5 @@
 import 'dart:convert';
-
 import 'package:e_kino_desktop/models/report.dart';
-import 'package:e_kino_desktop/models/report_all.dart';
-
 import 'base_provider.dart';
 
 class ReportProvider extends BaseProvider<Report> {

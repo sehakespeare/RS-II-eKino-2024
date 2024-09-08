@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:e_kino_desktop/providers/direktor_provider.dart';
 
 import 'package:e_kino_desktop/screens/direktors/direktors_screen.dart';
+import 'package:e_kino_desktop/utils/util.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,13 +22,23 @@ class AddDirektorsScreen extends StatefulWidget {
 
 class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final Map<String, dynamic> _initialValue = {};
+  Map<String, dynamic> userData = {};
   late DirektorProvider _direktorProvider;
 
   @override
   void initState() {
     super.initState();
     _direktorProvider = context.read<DirektorProvider>();
+    if (DirectorData.id != null) {
+      userData = {
+        "id": DirectorData.id,
+        "name": DirectorData.name,
+        "photo": base64Decode(DirectorData.photo!),
+        "biography": DirectorData.biography,
+      };
+    } else {
+      userData = {};
+    }
   }
 
   File? _image;
@@ -50,10 +61,20 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-        "Directors",
-        style: TextStyle(fontSize: 18),
-      )),
+        title: const Text(
+          "Directors",
+          style: TextStyle(fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Postavite ikonu back gumba
+          onPressed: () {
+            DirectorData.id = null;
+            userData = {};
+            _formKey.currentState?.reset();
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: SizedBox(
           width: 800,
@@ -72,39 +93,90 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
-                            var imagePath = _image?.path;
-                            // Read image file as bytes
-                            List<int> imageBytes =
-                                await File(imagePath!).readAsBytes();
 
-                            // Encode image bytes to base64 string
-                            String base64Image = base64Encode(imageBytes);
-                            request['photo'] = base64Image;
-                            try {
-                              await _direktorProvider.insert(request);
+                            if (DirectorData.id != null) {
+                              if (_image != null) {
+                                var imagePath = _image?.path;
+                                // Read image file as bytes
+                                List<int> imageBytes =
+                                    await File(imagePath!).readAsBytes();
 
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const DirektorsScreen(),
-                              ));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Uspješno ste dodali režisera",
-                                    style: TextStyle(color: Colors.white),
+                                // Encode image bytes to base64 string
+                                String base64Image = base64Encode(imageBytes);
+                                request['photo'] = base64Image;
+                              } else {
+                                request['photo'] = DirectorData.photo;
+                              }
+
+                              try {
+                                await _direktorProvider.update(
+                                    userData['id'], request);
+
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const DirektorsScreen(),
+                                ));
+                                DirectorData.id = null;
+                                DirectorData.name = null;
+                                DirectorData.biography = null;
+                                DirectorData.photo = null;
+                                userData = {};
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste editovali režisera",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
                                   ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } on Exception catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    e.toString(),
-                                    style: const TextStyle(color: Colors.white),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              }
+                            } else {
+                              var imagePath = _image?.path;
+                              // Read image file as bytes
+                              List<int> imageBytes =
+                                  await File(imagePath!).readAsBytes();
+
+                              // Encode image bytes to base64 string
+                              String base64Image = base64Encode(imageBytes);
+                              request['photo'] = base64Image;
+                              try {
+                                await _direktorProvider.insert(request);
+
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const DirektorsScreen(),
+                                ));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste dodali režisera",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           }
                         },
@@ -124,7 +196,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
       padding: const EdgeInsets.all(16.0),
       child: FormBuilder(
         key: _formKey,
-        initialValue: _initialValue,
+        initialValue: userData,
         child: Row(
           children: [
             Expanded(
@@ -135,6 +207,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                     decoration: const InputDecoration(
                         labelText: "Full name",
                         labelStyle: TextStyle(color: Colors.black)),
+                    initialValue: userData['name'],
                     name: "fullName",
                     style: const TextStyle(color: Colors.black),
                     validator: FormBuilderValidators.required(
@@ -147,6 +220,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                     decoration: const InputDecoration(
                         labelText: "Biography",
                         labelStyle: TextStyle(color: Colors.black)),
+                    initialValue: userData['biography'],
                     name: "biography",
                     style: const TextStyle(color: Colors.black),
                     validator: FormBuilderValidators.required(
@@ -163,22 +237,31 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 300,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 2,
+                      width: 300,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: _image == null
-                        ? Center(child: Text('No image selected.'))
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(_image!, fit: BoxFit.cover),
-                          ),
-                  ),
+                      child: userData['photo'] != null &&
+                              userData['photo'].isNotEmpty &&
+                              _image == null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.memory(userData['photo'],
+                                  fit: BoxFit.cover),
+                            )
+                          : _image != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(_image!, fit: BoxFit.cover),
+                                )
+                              : const Center(
+                                  child: Text('No image selected'),
+                                )),
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: getImage,

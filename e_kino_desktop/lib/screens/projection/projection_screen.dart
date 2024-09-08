@@ -1,25 +1,16 @@
 import 'package:e_kino_desktop/models/auditorium.dart';
 import 'package:e_kino_desktop/models/movies.dart';
 import 'package:e_kino_desktop/models/projection.dart';
-import 'package:e_kino_desktop/models/user.dart';
 import 'package:e_kino_desktop/providers/auditorium_provider.dart';
 import 'package:e_kino_desktop/providers/movies_provider.dart';
 import 'package:e_kino_desktop/providers/projections_provider.dart';
-import 'package:e_kino_desktop/providers/users_provider.dart';
-import 'package:e_kino_desktop/screens/movies/add_movie_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../appbar.dart';
-import '../../models/direktor.dart';
-import '../../models/genre.dart';
 import '../../models/search_result.dart';
-
-import '../../providers/direktor_provider.dart';
-import '../../providers/genre_provider.dart';
 import '../../utils/util.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -165,7 +156,7 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 24.0),
-              child: Container(
+              child: SizedBox(
                 height: 80,
                 width: 120,
                 child: FormBuilderDropdown<String>(
@@ -189,7 +180,7 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 24.0),
-              child: Container(
+              child: SizedBox(
                 height: 80,
                 width: 120,
                 child: FormBuilderDropdown<String>(
@@ -209,7 +200,7 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Container(
+            SizedBox(
               width: 200,
               child: FormBuilderDateTimePicker(
                 name: 'DateOfProjection',
@@ -299,6 +290,7 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
             const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () async {
+                ProjectionData.id = null;
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => AddProjectionScreen(
@@ -346,7 +338,14 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
                 headingRowColor: MaterialStateProperty.all(
                     const Color.fromARGB(255, 46, 92, 232)),
                 showEmptyRows: false,
-                source: _DataSource(data: result!.result),
+                source: _DataSource(
+                  data: result!.result,
+                  context: context,
+                  movies: resultMovie != null ? resultMovie!.result : [],
+                  auditorium: resultAuditoriumList != null
+                      ? resultAuditoriumList!.result
+                      : [],
+                ),
                 columns: const [
                   DataColumn(
                     label: Expanded(
@@ -380,6 +379,14 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
                       ),
                     ),
                   ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        '',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
                 ],
               );
             }),
@@ -390,8 +397,15 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
 
 class _DataSource extends DataTableSource {
   final List<Projection> data;
+  final List<Movies> movies;
+  List<Auditorium> auditorium;
+  final BuildContext context;
 
-  _DataSource({required this.data});
+  _DataSource(
+      {required this.data,
+      required this.context,
+      required this.movies,
+      required this.auditorium});
   Color _getDataRowColor(Set<MaterialState> states) {
     const Set<MaterialState> interactiveStates = <MaterialState>{
       MaterialState.pressed,
@@ -420,6 +434,25 @@ class _DataSource extends DataTableSource {
       ),
       DataCell(Text(e.auditorium!.name.toString())),
       DataCell(Text(e.dateOfProjection.toString())),
+      DataCell(
+        const Text('Edit'),
+        onTap: () async {
+          ProjectionData.id = e.projectionId;
+          ProjectionData.auditoriumId = e.auditorium?.auditoriumId;
+          ProjectionData.movieId = e.movie?.movieId;
+          ProjectionData.dateOfProjection = e.dateOfProjection;
+          ProjectionData.price = e.ticketPrice;
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddProjectionScreen(
+                movies: movies,
+                auditorium: auditorium,
+              ),
+            ),
+          );
+        },
+      ),
       DataCell(
         const Text('Obriši'),
         onTap: () async {

@@ -66,4 +66,8 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    def emoji2_version = "1.4.0"
+    implementation("androidx.emoji2:emoji2:$emoji2_version")
+    implementation("androidx.emoji2:emoji2-views:$emoji2_version")
+    implementation("androidx.emoji2:emoji2-views-helper:$emoji2_version")
 }

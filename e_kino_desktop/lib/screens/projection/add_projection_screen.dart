@@ -1,25 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:e_kino_desktop/models/auditorium.dart';
-import 'package:e_kino_desktop/models/genre.dart';
 import 'package:e_kino_desktop/models/movies.dart';
-import 'package:e_kino_desktop/models/projection.dart';
-import 'package:e_kino_desktop/providers/movies_provider.dart';
 import 'package:e_kino_desktop/providers/projections_provider.dart';
-import 'package:e_kino_desktop/screens/movies/movies_screen.dart';
 import 'package:e_kino_desktop/screens/projection/projection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-import '../../models/direktor.dart';
-import '../../providers/users_provider.dart';
+import '../../utils/util.dart';
 
 class AddProjectionScreen extends StatefulWidget {
   final List<Movies> movies;
@@ -32,15 +21,29 @@ class AddProjectionScreen extends StatefulWidget {
 
 class _AddProjectionScreenState extends State<AddProjectionScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final Map<String, dynamic> _initialValue = {};
+  Map<String, dynamic> userData = {};
   late ProjectionsProvider _projectionsProvider;
-  final TextEditingController _controller = TextEditingController();
+  late TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _projectionsProvider = context.read<ProjectionsProvider>();
     _controller.addListener(_formatValue);
+    if (ProjectionData.id != null) {
+      _controller =
+          TextEditingController(text: ProjectionData.price.toString());
+
+      userData = {
+        "id": ProjectionData.id,
+        "dateOfProjection": ProjectionData.dateOfProjection,
+        "movieId": ProjectionData.movieId,
+        "ticketPrice": ProjectionData.price,
+        "auditoriumId": ProjectionData.auditoriumId
+      };
+    } else {
+      userData = {};
+    }
   }
 
   @override
@@ -70,10 +73,20 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-        "Filmovi",
-        style: TextStyle(fontSize: 18),
-      )),
+        title: const Text(
+          "Filmovi",
+          style: TextStyle(fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            ProjectionData.id = null;
+            userData = {};
+            _formKey.currentState?.reset();
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: SizedBox(
           width: 800,
@@ -92,50 +105,109 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
+                            if (ProjectionData.id != null) {
+                              // _updateUserData(field, value);
+                              try {
+                                Map movieData = {
+                                  'projectionId': userData['id'],
+                                  "dateOfProjection": _formKey
+                                              .currentState
+                                              ?.fields['dateOfProjection']
+                                              ?.value !=
+                                          null
+                                      ? (_formKey
+                                              .currentState
+                                              ?.fields['dateOfProjection']
+                                              ?.value)
+                                          .toIso8601String()
+                                      : userData['dateOfProjection']
+                                          .toIso8601String(),
+                                  "movieId":
+                                      (_formKey.currentState?.value['movieId']),
+                                  "auditoriumId": (_formKey
+                                      .currentState?.value['auditoriumId']),
+                                  "ticketPrice": double.parse(_formKey
+                                      .currentState?.value['ticketPrice']),
+                                };
+                                await _projectionsProvider.update(
+                                    userData['id'], movieData);
+                                ProjectionData.id = null;
+                                userData = {};
 
-                            // request['photo'] = base64Image;
-                            try {
-                              Map movieData = {
-                                "dateOfProjection": _formKey
-                                            .currentState
-                                            ?.fields['DateOfProjection']
-                                            ?.value !=
-                                        null
-                                    ? (_formKey.currentState
-                                            ?.fields['DateOfProjection']?.value)
-                                        .toIso8601String()
-                                    : null,
-                                "movieId":
-                                    (_formKey.currentState?.value['movieId']),
-                                "auditoriumId": (_formKey
-                                    .currentState?.value['auditoriumId']),
-                                "ticketPrice": double.parse(_formKey
-                                    .currentState?.value['ticketPrice']),
-                              };
-                              await _projectionsProvider.insert(movieData);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ProjectionScreen(),
+                                ));
 
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const ProjectionScreen(),
-                              ));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Uspješno ste dodali projekciju",
-                                    style: TextStyle(color: Colors.white),
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste editovali projekciju",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
                                   ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } on Exception catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    e.toString(),
-                                    style: const TextStyle(color: Colors.white),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              }
+                            } else {
+                              try {
+                                Map movieData = {
+                                  "dateOfProjection": _formKey
+                                              .currentState
+                                              ?.fields['dateOfProjection']
+                                              ?.value !=
+                                          null
+                                      ? (_formKey
+                                              .currentState
+                                              ?.fields['dateOfProjection']
+                                              ?.value)
+                                          .toIso8601String()
+                                      : null,
+                                  "movieId":
+                                      (_formKey.currentState?.value['movieId']),
+                                  "auditoriumId": (_formKey
+                                      .currentState?.value['auditoriumId']),
+                                  "ticketPrice": double.parse(_formKey
+                                      .currentState?.value['ticketPrice']),
+                                };
+                                await _projectionsProvider.insert(movieData);
+
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ProjectionScreen(),
+                                ));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste dodali projekciju",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           }
                         },
@@ -155,7 +227,7 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
       padding: const EdgeInsets.all(16.0),
       child: FormBuilder(
         key: _formKey,
-        initialValue: _initialValue,
+        initialValue: userData,
         child: Row(
           children: [
             const SizedBox(
@@ -165,13 +237,14 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
+                  SizedBox(
                     height: 80,
                     width: 120,
                     child: FormBuilderDropdown<String>(
                       validator: FormBuilderValidators.required(
                           errorText: "Polje ne smije biti prazno."),
                       name: 'movieId',
+                      initialValue: userData['movieId'].toString(),
                       decoration: const InputDecoration(labelText: "Film"),
                       items: widget.movies
                               .map(
@@ -185,13 +258,14 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                       enabled: true,
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     height: 80,
                     width: 120,
                     child: FormBuilderDropdown<String>(
                       validator: FormBuilderValidators.required(
                           errorText: "Polje ne smije biti prazno."),
                       name: 'auditoriumId',
+                      initialValue: userData['auditoriumId'].toString(),
                       decoration: const InputDecoration(labelText: "Sala"),
                       items: widget.auditorium
                               .map(
@@ -205,10 +279,11 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                       enabled: true,
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     width: 200,
                     child: FormBuilderDateTimePicker(
-                      name: 'DateOfProjection',
+                      name: 'dateOfProjection',
+                      initialValue: (userData['dateOfProjection']),
                       decoration:
                           const InputDecoration(labelText: "Datum projekcije"),
                       inputType: InputType.both,

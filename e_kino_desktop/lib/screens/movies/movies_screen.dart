@@ -1,10 +1,7 @@
 import 'package:e_kino_desktop/models/movies.dart';
-import 'package:e_kino_desktop/models/user.dart';
 import 'package:e_kino_desktop/providers/movies_provider.dart';
-import 'package:e_kino_desktop/providers/users_provider.dart';
 import 'package:e_kino_desktop/screens/movies/add_movie_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
 
@@ -285,7 +282,15 @@ class _MoviesScreenState extends State<MoviesScreen> {
                 headingRowColor: MaterialStateProperty.all(
                     const Color.fromARGB(255, 46, 92, 232)),
                 showEmptyRows: false,
-                source: _DataSource(data: result!.result),
+                source: _DataSource(
+                  data: result!.result,
+                  context: context,
+                  directorList: resultDirectorList != null
+                      ? resultDirectorList!.result
+                      : [],
+                  genreList:
+                      resultGenreList != null ? resultGenreList!.result : [],
+                ),
                 columns: const [
                   DataColumn(
                     label: Expanded(
@@ -319,6 +324,14 @@ class _MoviesScreenState extends State<MoviesScreen> {
                       ),
                     ),
                   ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        '',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
                 ],
               );
             }),
@@ -329,21 +342,15 @@ class _MoviesScreenState extends State<MoviesScreen> {
 
 class _DataSource extends DataTableSource {
   final List<Movies> data;
+  final BuildContext context;
+  final List<Direktor> directorList;
+  final List<Genre> genreList;
 
-  _DataSource({required this.data});
-  Color _getDataRowColor(Set<MaterialState> states) {
-    const Set<MaterialState> interactiveStates = <MaterialState>{
-      MaterialState.pressed,
-      MaterialState.hovered,
-      MaterialState.focused,
-      MaterialState.selected,
-    };
-
-    if (states.any(interactiveStates.contains)) {
-      return Colors.blue;
-    }
-    return Colors.transparent;
-  }
+  _DataSource(
+      {required this.data,
+      required this.context,
+      required this.directorList,
+      required this.genreList});
 
   @override
   DataRow? getRow(int index) {
@@ -359,6 +366,35 @@ class _DataSource extends DataTableSource {
       ),
       DataCell(Text(e.year.toString())),
       DataCell(Text(e.runningTime.toString())),
+      DataCell(
+        const Text('Edit'),
+        onTap: () async {
+          MovieData.id = e.movieId;
+          MovieData.title = e.title;
+          MovieData.description = e.description;
+          MovieData.photo = e.photo;
+          MovieData.year = e.year;
+          MovieData.directorFullName = directorList
+              .firstWhere((element) => element.directorId == e.directorId)
+              .fullName!;
+          if (e.movieGenres != null) {
+            for (var element in e.movieGenres!) {
+              MovieData.movieGenreIdList.add(element.genreId!);
+            }
+          }
+
+          MovieData.directorId = e.directorId;
+          MovieData.runningTime = e.runningTime.toString();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddMovieScreen(
+                data: directorList,
+                genre: genreList,
+              ),
+            ),
+          );
+        },
+      ),
       DataCell(
         const Text('Obriši'),
         onTap: () async {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eKino.Services.Database;
 
@@ -11,9 +12,10 @@ using eKino.Services.Database;
 namespace eKino.Services.Migrations
 {
     [DbContext(typeof(eKinoContext))]
-    partial class eKinoContextModelSnapshot : ModelSnapshot
+    [Migration("20240908122843_MigDodProj")]
+    partial class MigDodProj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

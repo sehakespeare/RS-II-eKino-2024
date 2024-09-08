@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../appbar.dart';
 import '../../models/search_result.dart';
 import 'add_users.dart';
-
 import '../../utils/util.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -16,7 +15,7 @@ late UsersProvider _korisnikProvider;
 SearchResult<Users>? result;
 
 class UsersScreen extends StatefulWidget {
-  const UsersScreen({Key? key}) : super(key: key);
+  const UsersScreen({super.key});
   static const String routeName = "/Users";
 
   @override
@@ -124,7 +123,7 @@ class _UsersScreenState extends State<UsersScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
+          SizedBox(
             width: 200,
             child: Column(
               children: [
@@ -135,10 +134,10 @@ class _UsersScreenState extends State<UsersScreen> {
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
-          Container(
+          SizedBox(
             width: 200,
             child: Column(
               children: [
@@ -251,7 +250,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 headingRowColor: MaterialStateProperty.all(
                     const Color.fromARGB(255, 46, 92, 232)),
                 showEmptyRows: false,
-                source: _DataSource(data: result!.result),
+                source: _DataSource(data: result!.result, context: context),
                 columns: const [
                   DataColumn(
                     label: Expanded(
@@ -301,6 +300,14 @@ class _UsersScreenState extends State<UsersScreen> {
                       ),
                     ),
                   ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        '',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
                 ],
               );
             }),
@@ -311,8 +318,9 @@ class _UsersScreenState extends State<UsersScreen> {
 
 class _DataSource extends DataTableSource {
   final List<Users> data;
+  final BuildContext context;
 
-  _DataSource({required this.data});
+  _DataSource({required this.data, required this.context});
   Color _getDataRowColor(Set<MaterialState> states) {
     const Set<MaterialState> interactiveStates = <MaterialState>{
       MaterialState.pressed,
@@ -337,19 +345,38 @@ class _DataSource extends DataTableSource {
 
     return DataRow(cells: [
       DataCell(
-        Text('${e.email.toString()}'),
+        Text(e.email.toString()),
       ),
       DataCell(Text(e.firstName.toString())),
       DataCell(Text(e.lastName.toString())),
       DataCell(Text(e.roleNames.toString())),
       DataCell(FormBuilderCheckbox(
         enabled: false,
-        initialValue: e.status,
         name: 'status',
-        title: Text(''),
+        title: const Text(''),
+        tristate: e.status!,
       )),
       DataCell(
-        Text('Delete'),
+        const Text('Edit'),
+        onTap: () async {
+          UsersData.id = e.userId;
+          UsersData.name = e.firstName;
+          UsersData.lastname = e.lastName;
+          UsersData.userName = e.username;
+          UsersData.email = e.email;
+          UsersData.phone = e.phone;
+          UsersData.status = e.status;
+          UsersData.roleList = e.userRoles;
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const AddUserScreen(),
+            ),
+          );
+        },
+      ),
+      DataCell(
+        const Text('Delete'),
         onTap: () async {
           await _korisnikProvider.delete(e.userId!);
           var data = await _korisnikProvider.get(filter: {

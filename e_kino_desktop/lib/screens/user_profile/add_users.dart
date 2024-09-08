@@ -1,9 +1,12 @@
+import 'package:e_kino_desktop/screens/user_profile/users_screen.dart';
+import 'package:e_kino_desktop/utils/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/user_roles.dart';
 import '../../providers/users_provider.dart';
 
 class AddUserScreen extends StatefulWidget {
@@ -14,13 +17,34 @@ class AddUserScreen extends StatefulWidget {
 
 class _RegistrationScreenScreenState extends State<AddUserScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final Map<String, dynamic> _initialValue = {};
+  Map<String, dynamic> userData = {};
   late UsersProvider _usersProvider;
-
+  late UsersProvider _korisnikProvider;
   @override
   void initState() {
     super.initState();
     _usersProvider = context.read<UsersProvider>();
+    if (UsersData.id != null) {
+      List<int>? roleIds = [];
+      for (var element in UsersData.roleList!) {
+        roleIds.add(element.roleId!);
+      }
+
+      userData = {
+        "id": UsersData.id,
+        "firstName": UsersData.name,
+        "lastName": UsersData.lastname,
+        "email": UsersData.email,
+        "phone": UsersData.phone,
+        "username": UsersData.userName,
+        "password": null,
+        "passwordConfirm": null,
+        "status": UsersData.status,
+        "roleIdList": roleIds
+      };
+    } else {
+      userData = {};
+    }
     initForm();
   }
 
@@ -39,10 +63,20 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-        "Dodaj korisnika",
-        style: TextStyle(fontSize: 18),
-      )),
+        title: const Text(
+          "Dodaj korisnika",
+          style: TextStyle(fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            UsersData.id = null;
+            userData = {};
+            _formKey.currentState?.reset();
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -58,34 +92,66 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                             _formKey.currentState?.saveAndValidate() ?? false;
                         if (isValid) {
                           var request = Map.from(_formKey.currentState!.value);
-                          // request['status'] = true;
-                          try {
-                            await _usersProvider.insert(request);
 
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Uspješno ste dodali korisnika",
-                                  style: TextStyle(color: Colors.white),
+                          if (UsersData.id != null) {
+                            try {
+                              await _usersProvider.update(
+                                  userData['id'], request);
+
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const UsersScreen(),
+                              ));
+                              UsersData.id = null;
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Uspješno ste editovali korisnika",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.green,
                                 ),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          } on Exception catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  e.toString(),
-                                  style: const TextStyle(color: Colors.white),
+                              );
+                            } on Exception catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    e.toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.red,
                                 ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
+                              );
+                            }
+                          } else {
+                            try {
+                              await _usersProvider.insert(request);
+
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Uspješno ste dodali korisnika",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            } on Exception catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    e.toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
                           }
                         }
                       },
-                      child: const Text("Dodaj korisnika")),
+                      child: const Text("Spasi")),
                 )
               ],
             ),
@@ -100,7 +166,7 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
       padding: const EdgeInsets.all(16.0),
       child: FormBuilder(
         key: _formKey,
-        initialValue: _initialValue,
+        initialValue: userData,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -167,8 +233,10 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
               name: "password",
               obscureText: true,
               style: const TextStyle(color: Colors.black),
-              validator: FormBuilderValidators.required(
-                  errorText: "Polje ne smije biti prazno."),
+              validator: UsersData.id != null
+                  ? null
+                  : FormBuilderValidators.required(
+                      errorText: "Polje ne smije biti prazno."),
             ),
             const SizedBox(height: 10),
             FormBuilderTextField(
@@ -176,16 +244,18 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                     labelText: "Ponovite lozinku",
                     labelStyle: TextStyle(color: Colors.black)),
                 name: "passwordConfirm",
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                      errorText: "Polje ne smije biti prazno."),
-                  (passwordConfirmValue) {
-                    var password =
-                        _formKey.currentState?.fields["password"]!.value;
-                    if (passwordConfirmValue == password) return null;
-                    return 'Lozinke se ne podudaraju';
-                  },
-                ]),
+                validator: UsersData.id != null
+                    ? null
+                    : FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                            errorText: "Polje ne smije biti prazno."),
+                        (passwordConfirmValue) {
+                          var password =
+                              _formKey.currentState?.fields["password"]!.value;
+                          if (passwordConfirmValue == password) return null;
+                          return 'Lozinke se ne podudaraju';
+                        },
+                      ]),
                 obscureText: true,
                 style: const TextStyle(color: Colors.black)),
             Row(
@@ -203,11 +273,11 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                         options: [
                           FormBuilderFieldOption(
                             value: values.values.first,
-                            child: Text('Administator'),
+                            child: const Text('Administator'),
                           ),
                           FormBuilderFieldOption(
                             value: values.values.last,
-                            child: Text('Client'),
+                            child: const Text('Client'),
                           )
                         ],
                       ),
@@ -219,7 +289,7 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FormBuilderCheckbox(
-                        initialValue: false,
+                        initialValue: userData['status'],
                         name: 'status',
                         title: const Text('Active')),
                   ),

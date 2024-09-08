@@ -2,6 +2,7 @@ import 'package:e_kino_desktop/providers/auditorium_provider.dart';
 import 'package:e_kino_desktop/providers/genre_provider.dart';
 import 'package:e_kino_desktop/screens/auditoriums/auditoriums_screen.dart';
 import 'package:e_kino_desktop/screens/genre/genre_screen.dart';
+import 'package:e_kino_desktop/utils/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -18,23 +19,41 @@ class AddGenreScreen extends StatefulWidget {
 
 class _AddGenreScreenState extends State<AddGenreScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final Map<String, dynamic> _initialValue = {};
+  late Map<String, dynamic> userData;
   late GenreProvider _genreProvider;
 
   @override
   void initState() {
     super.initState();
     _genreProvider = context.read<GenreProvider>();
+    if (GenreData.id != null) {
+      userData = {
+        "id": GenreData.id,
+        "name": GenreData.name,
+      };
+    } else {
+      userData = {};
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-        "Genre",
-        style: TextStyle(fontSize: 18),
-      )),
+        title: const Text(
+          "Genre",
+          style: TextStyle(fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Postavite ikonu back gumba
+          onPressed: () {
+            GenreData.id = null;
+            userData = {};
+            _formKey.currentState?.reset();
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: SizedBox(
           width: 300,
@@ -53,32 +72,66 @@ class _AddGenreScreenState extends State<AddGenreScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
+                            if (GenreData.id != null) {
+                              // _updateUserData(field, value);
+                              try {
+                                await _genreProvider.update(
+                                    userData['id'], request);
 
-                            try {
-                              await _genreProvider.insert(request);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const GenreScreen(),
+                                ));
+                                GenreData.id = null;
+                                GenreData.name = null;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste editovali žanr",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } else {
+                              try {
+                                await _genreProvider.insert(request);
 
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const GenreScreen(),
-                              ));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Uspješno ste dodali žanr",
-                                    style: TextStyle(color: Colors.white),
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => const GenreScreen(),
+                                ));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste dodali žanr",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
                                   ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } on Exception catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    e.toString(),
-                                    style: const TextStyle(color: Colors.white),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              }
                             }
                           }
                         },
@@ -98,11 +151,12 @@ class _AddGenreScreenState extends State<AddGenreScreen> {
       padding: const EdgeInsets.all(16.0),
       child: FormBuilder(
         key: _formKey,
-        initialValue: _initialValue,
+        initialValue: userData,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FormBuilderTextField(
+              initialValue: userData['name'],
               decoration: const InputDecoration(
                   labelText: "Name",
                   labelStyle: TextStyle(color: Colors.black)),

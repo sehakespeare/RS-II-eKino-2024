@@ -1,5 +1,6 @@
 import 'package:e_kino_desktop/providers/auditorium_provider.dart';
 import 'package:e_kino_desktop/screens/auditoriums/auditoriums_screen.dart';
+import 'package:e_kino_desktop/utils/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -16,23 +17,41 @@ class AddAuditoriumScreen extends StatefulWidget {
 
 class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final Map<String, dynamic> _initialValue = {};
+  Map<String, dynamic> userData = {};
   late AuditoriumProvider _usersProvider;
 
   @override
   void initState() {
     super.initState();
     _usersProvider = context.read<AuditoriumProvider>();
+    if (AuditoriumData.id != null) {
+      userData = {
+        "id": AuditoriumData.id,
+        "name": AuditoriumData.name,
+      };
+    } else {
+      userData = {};
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-        "Auditorium",
-        style: TextStyle(fontSize: 18),
-      )),
+        title: const Text(
+          "Auditorium",
+          style: TextStyle(fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Postavite ikonu back gumba
+          onPressed: () {
+            AuditoriumData.id = null;
+            userData = {};
+            _formKey.currentState?.reset();
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: SizedBox(
           width: 300,
@@ -51,32 +70,68 @@ class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
+                            if (AuditoriumData.id != null) {
+                              // _updateUserData(field, value);
+                              try {
+                                await _usersProvider.update(
+                                    userData['id'], request);
 
-                            try {
-                              await _usersProvider.insert(request);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AuditoriumScreen(),
+                                ));
+                                AuditoriumData.id = null;
+                                AuditoriumData.name = null;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste editovali auditorium",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } else {
+                              try {
+                                await _usersProvider.insert(request);
 
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const AuditoriumScreen(),
-                              ));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Uspješno ste dodali auditorium",
-                                    style: TextStyle(color: Colors.white),
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AuditoriumScreen(),
+                                ));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Uspješno ste dodali auditorium",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
                                   ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            } on Exception catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    e.toString(),
-                                    style: const TextStyle(color: Colors.white),
+                                );
+                              } on Exception catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              }
                             }
                           }
                         },
@@ -96,7 +151,7 @@ class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
       padding: const EdgeInsets.all(16.0),
       child: FormBuilder(
         key: _formKey,
-        initialValue: _initialValue,
+        initialValue: userData,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
