@@ -64,7 +64,7 @@ namespace eKino.EmailSubscriber
             string host = mailSMTPSettings.Host;
             string to = mailSMTPSettings.To;
             string subject = emailMessage.Subject;
-            string body = $"{emailMessage.Body}\n\n\nVaš unikatni kod za pristup projekciji: {emailMessage.ReservationId}\nBroj osoba koje mogu pristupiti(broj karti koje ste rezervirali): {emailMessage.NumTickets}";
+            string body = $"{emailMessage.Body}\n\n\nVaš unikatni kod za pristup projekciji: QKtoz-{emailMessage.ReservationId}\nBroj rezerviranih karti: {emailMessage.NumTickets}";
 
             var client = new SmtpClient(host)
             {

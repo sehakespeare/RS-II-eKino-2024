@@ -142,14 +142,17 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                                 );
                               }
                             } else {
-                              var imagePath = _image?.path;
-                              // Read image file as bytes
-                              List<int> imageBytes =
-                                  await File(imagePath!).readAsBytes();
+                              if (_image != null) {
+                                var imagePath = _image?.path;
+                                // Read image file as bytes
+                                List<int> imageBytes =
+                                    await File(imagePath!).readAsBytes();
 
-                              // Encode image bytes to base64 string
-                              String base64Image = base64Encode(imageBytes);
-                              request['photo'] = base64Image;
+                                // Encode image bytes to base64 string
+                                String base64Image = base64Encode(imageBytes);
+                                request['photo'] = base64Image;
+                              }
+
                               try {
                                 await _direktorProvider.insert(request);
 

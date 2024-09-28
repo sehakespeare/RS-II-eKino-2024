@@ -174,11 +174,15 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                             } else {
                               var request =
                                   Map.from(_formKey.currentState!.value);
-                              var imagePath = _image?.path;List<int> imageBytes =
-                                  await File(imagePath!).readAsBytes();
+                              if (_image != null) {
+                                var imagePath = _image?.path;
+                                List<int> imageBytes =
+                                    await File(imagePath!).readAsBytes();
 
-                              String base64Image = base64Encode(imageBytes);
-                              request['photo'] = base64Image;
+                                String base64Image = base64Encode(imageBytes);
+                                request['photo'] = base64Image;
+                              }
+
                               try {
                                 Map movieData = {
                                   "title":
@@ -313,58 +317,46 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                     validator: FormBuilderValidators.required(
                         errorText: "Polje ne smije biti prazno."),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SizedBox(
-                      height: 80,
-                      width: 80,
-                      child: FormBuilderDropdown<String>(
-                        initialValue: userData.isNotEmpty
-                            ? userData['year'].toString()
-                            : null,
-                        name: 'year',
-                        validator: FormBuilderValidators.required(
-                            errorText: "Polje ne smije biti prazno."),
-                        decoration: const InputDecoration(labelText: "Godina"),
-                        items: years
-                                .map(
-                                  (year) => DropdownMenuItem(
-                                    value: year.toString(),
-                                    child: Text(year.toString()),
-                                  ),
-                                )
-                                .toList() ??
-                            [],
-                        enabled: true,
-                      ),
-                    ),
+                  FormBuilderTextField(
+                    decoration: const InputDecoration(
+                        labelText: "Godina",
+                        labelStyle: TextStyle(color: Colors.black)),
+                    initialValue:
+                        userData.isNotEmpty ? userData['year'].toString() : '',
+                    name: "year",
+                    style: const TextStyle(color: Colors.black),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                          errorText: "Polje ne smije biti prazno."),
+                      FormBuilderValidators.integer(
+                          errorText: "Unesite validan broj."),
+                      FormBuilderValidators.min(1800,
+                          errorText: "Godina ne smije biti manja 1800."),
+                      FormBuilderValidators.max(DateTime.now().year,
+                          errorText: "Godina ne smije biti veća od trenutne."),
+                    ]),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SizedBox(
-                      height: 80,
-                      width: 80,
-                      child: FormBuilderDropdown<String>(
-                        initialValue: userData.isNotEmpty
-                            ? userData['runningTime']
-                            : null,
-                        name: 'runningTime',
-                        validator: FormBuilderValidators.required(
-                            errorText: "Polje ne smije biti prazno."),
-                        decoration:
-                            const InputDecoration(labelText: "Trajanje"),
-                        items: time
-                                .map(
-                                  (year) => DropdownMenuItem(
-                                    value: year.toString(),
-                                    child: Text(year.toString()),
-                                  ),
-                                )
-                                .toList() ??
-                            [],
-                        enabled: true,
-                      ),
-                    ),
+                  FormBuilderTextField(
+                    initialValue: userData.isNotEmpty
+                        ? userData['runningTime'].toString()
+                        : '',
+                    decoration: const InputDecoration(
+                        labelText: "Trajanje",
+                        labelStyle: TextStyle(color: Colors.black)),
+                    name: "runningTime",
+                    style: const TextStyle(color: Colors.black),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                          errorText: "Polje ne smije biti prazno."),
+                      FormBuilderValidators.integer(
+                          errorText: "Unesite validan broj."),
+                      FormBuilderValidators.min(1,
+                          errorText:
+                              "Trajanje filma ne može biti kraće od 1 min "),
+                      FormBuilderValidators.max(500,
+                          errorText:
+                              "Trajanje filma ne može biti duže od 500 min "),
+                    ]),
                   ),
                   SizedBox(
                     height: 80,
