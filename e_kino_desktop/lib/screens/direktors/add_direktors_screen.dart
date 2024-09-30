@@ -42,7 +42,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
   }
 
   File? _image;
-
+  String? _imageError;
   final picker = ImagePicker();
 
   Future getImage() async {
@@ -53,6 +53,17 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
         _image = File(pickedFile.path);
       } else {
         print('No image selected.');
+      }
+    });
+  }
+
+  void _validateImage() {
+    setState(() {
+      if (_image == null &&
+          (userData['photo'] == null || userData['photo'].isEmpty)) {
+        _imageError = 'Image is required'; // Postavite poruku o grešci
+      } else {
+        _imageError = null; // Ako je slika odabrana, nema greške
       }
     });
   }
@@ -90,95 +101,100 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                         onPressed: () async {
                           var isValid =
                               _formKey.currentState?.saveAndValidate() ?? false;
-                          if (isValid) {
-                            var request =
-                                Map.from(_formKey.currentState!.value);
+                          _validateImage();
+                          if (_imageError == null) {
+                            if (isValid) {
+                              var request =
+                                  Map.from(_formKey.currentState!.value);
 
-                            if (DirectorData.id != null) {
-                              if (_image != null) {
-                                var imagePath = _image?.path;
-                                // Read image file as bytes
-                                List<int> imageBytes =
-                                    await File(imagePath!).readAsBytes();
+                              if (DirectorData.id != null) {
+                                if (_image != null) {
+                                  var imagePath = _image?.path;
+                                  // Read image file as bytes
+                                  List<int> imageBytes =
+                                      await File(imagePath!).readAsBytes();
 
-                                // Encode image bytes to base64 string
-                                String base64Image = base64Encode(imageBytes);
-                                request['photo'] = base64Image;
+                                  // Encode image bytes to base64 string
+                                  String base64Image = base64Encode(imageBytes);
+                                  request['photo'] = base64Image;
+                                } else {
+                                  request['photo'] = DirectorData.photo;
+                                }
+
+                                try {
+                                  await _direktorProvider.update(
+                                      userData['id'], request);
+
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const DirektorsScreen(),
+                                  ));
+                                  DirectorData.id = null;
+                                  DirectorData.name = null;
+                                  DirectorData.biography = null;
+                                  DirectorData.photo = null;
+                                  userData = {};
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Uspješno ste editovali režisera",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } on Exception catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        e.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               } else {
-                                request['photo'] = DirectorData.photo;
-                              }
+                                if (_image != null) {
+                                  var imagePath = _image?.path;
+                                  // Read image file as bytes
+                                  List<int> imageBytes =
+                                      await File(imagePath!).readAsBytes();
 
-                              try {
-                                await _direktorProvider.update(
-                                    userData['id'], request);
+                                  // Encode image bytes to base64 string
+                                  String base64Image = base64Encode(imageBytes);
+                                  request['photo'] = base64Image;
+                                }
 
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const DirektorsScreen(),
-                                ));
-                                DirectorData.id = null;
-                                DirectorData.name = null;
-                                DirectorData.biography = null;
-                                DirectorData.photo = null;
-                                userData = {};
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Uspješno ste editovali režisera",
-                                      style: TextStyle(color: Colors.white),
+                                try {
+                                  await _direktorProvider.insert(request);
+
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const DirektorsScreen(),
+                                  ));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Uspješno ste dodali režisera",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.green,
                                     ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              } on Exception catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      e.toString(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
+                                  );
+                                } on Exception catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        e.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.red,
                                     ),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            } else {
-                              if (_image != null) {
-                                var imagePath = _image?.path;
-                                // Read image file as bytes
-                                List<int> imageBytes =
-                                    await File(imagePath!).readAsBytes();
-
-                                // Encode image bytes to base64 string
-                                String base64Image = base64Encode(imageBytes);
-                                request['photo'] = base64Image;
-                              }
-
-                              try {
-                                await _direktorProvider.insert(request);
-
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const DirektorsScreen(),
-                                ));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Uspješno ste dodali režisera",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              } on Exception catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      e.toString(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
+                                  );
+                                }
                               }
                             }
                           }
@@ -270,6 +286,14 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                     onPressed: getImage,
                     child: Text('Pick Image'),
                   ),
+                  if (_imageError != null) // Prikaz greške ispod slike
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        _imageError!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                 ],
               ),
             ),

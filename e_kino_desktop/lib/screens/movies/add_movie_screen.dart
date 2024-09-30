@@ -49,6 +49,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
   }
 
   var _image;
+  String? _imageError;
 
   final picker = ImagePicker();
 
@@ -69,6 +70,16 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
 
   int selectedRunningTime = 120;
   List<int> time = List.generate(60, (index) => 10 + (index * 10));
+  void _validateImage() {
+    setState(() {
+      if (_image == null &&
+          (userData['photo'] == null || userData['photo'].isEmpty)) {
+        _imageError = 'Image is required'; // Postavite poruku o grešci
+      } else {
+        _imageError = null; // Ako je slika odabrana, nema greške
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,87 +114,24 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                         onPressed: () async {
                           var isValid =
                               _formKey.currentState?.saveAndValidate() ?? false;
-                          if (isValid) {
-                            if (MovieData.id != null) {
-                              var request =
-                                  Map.from(_formKey.currentState!.value);
-                              if (_image != null) {
-                                var imagePath = _image?.path;
+                          _validateImage();
+                          if (_imageError == null) { 
+                            if (isValid) {
+                              if (MovieData.id != null) {
+                                var request =
+                                    Map.from(_formKey.currentState!.value);
+                                if (_image != null) {
+                                  var imagePath = _image?.path;
 
-                                List<int> imageBytes =
-                                    await File(imagePath!).readAsBytes();
+                                  List<int> imageBytes =
+                                      await File(imagePath!).readAsBytes();
 
-                                String base64Image = base64Encode(imageBytes);
-                                request['photo'] = base64Image;
-                              } else {
-                                request['photo'] = MovieData.photo;
-                              }
+                                  String base64Image = base64Encode(imageBytes);
+                                  request['photo'] = base64Image;
+                                } else {
+                                  request['photo'] = MovieData.photo;
+                                }
 
-                              Map movieData = {
-                                "title": _formKey.currentState?.value['title'],
-                                "description":
-                                    _formKey.currentState?.value['description'],
-                                "photo": request['photo'],
-                                "runningTime": int.tryParse(_formKey
-                                    .currentState?.value['runningTime']),
-                                "year": int.tryParse(
-                                    _formKey.currentState?.value['year']),
-                                "directorId":
-                                    _formKey.currentState?.value['directorId'],
-                                "movieGenreIdList": _formKey
-                                    .currentState?.value['movieGenreIdList'],
-                              };
-                              try {
-                                await _moviesProvider.update(
-                                    userData['id'], movieData);
-
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const MoviesScreen(),
-                                ));
-                                MovieData.id = null;
-                                MovieData.title = null;
-                                MovieData.description = null;
-                                MovieData.photo = null;
-                                MovieData.year = null;
-                                MovieData.directorFullName = null;
-
-                                MovieData.directorId = null;
-                                MovieData.runningTime = null;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Uspješno ste editovali film",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              } on Exception catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      e.toString(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                              movieData = {};
-                            } else {
-                              var request =
-                                  Map.from(_formKey.currentState!.value);
-                              if (_image != null) {
-                                var imagePath = _image?.path;
-                                List<int> imageBytes =
-                                    await File(imagePath!).readAsBytes();
-
-                                String base64Image = base64Encode(imageBytes);
-                                request['photo'] = base64Image;
-                              }
-
-                              try {
                                 Map movieData = {
                                   "title":
                                       _formKey.currentState?.value['title'],
@@ -199,31 +147,98 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                                   "movieGenreIdList": _formKey
                                       .currentState?.value['movieGenreIdList'],
                                 };
-                                await _moviesProvider.insert(movieData);
+                                try {
+                                  await _moviesProvider.update(
+                                      userData['id'], movieData);
 
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const MoviesScreen(),
-                                ));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Uspješno ste dodali film",
-                                      style: TextStyle(color: Colors.white),
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => const MoviesScreen(),
+                                  ));
+                                  MovieData.id = null;
+                                  MovieData.title = null;
+                                  MovieData.description = null;
+                                  MovieData.photo = null;
+                                  MovieData.year = null;
+                                  MovieData.directorFullName = null;
+
+                                  MovieData.directorId = null;
+                                  MovieData.runningTime = null;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Uspješno ste editovali film",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.green,
                                     ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              } on Exception catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      e.toString(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
+                                  );
+                                } on Exception catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        e.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.red,
                                     ),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
+                                  );
+                                }
+                                movieData = {};
+                              } else {
+                                var request =
+                                    Map.from(_formKey.currentState!.value);
+                                if (_image != null) {
+                                  var imagePath = _image?.path;
+                                  List<int> imageBytes =
+                                      await File(imagePath!).readAsBytes();
+
+                                  String base64Image = base64Encode(imageBytes);
+                                  request['photo'] = base64Image;
+                                }
+
+                                try {
+                                  Map movieData = {
+                                    "title":
+                                        _formKey.currentState?.value['title'],
+                                    "description": _formKey
+                                        .currentState?.value['description'],
+                                    "photo": request['photo'],
+                                    "runningTime": int.tryParse(_formKey
+                                        .currentState?.value['runningTime']),
+                                    "year": int.tryParse(
+                                        _formKey.currentState?.value['year']),
+                                    "directorId": _formKey
+                                        .currentState?.value['directorId'],
+                                    "movieGenreIdList": _formKey.currentState
+                                        ?.value['movieGenreIdList'],
+                                  };
+                                  await _moviesProvider.insert(movieData);
+
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => const MoviesScreen(),
+                                  ));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Uspješno ste dodali film",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } on Exception catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        e.toString(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             }
                           }
@@ -286,6 +301,14 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                     onPressed: getImage,
                     child: const Text('Pick Image'),
                   ),
+                  if (_imageError != null) // Prikaz greške ispod slike
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        _imageError!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -330,8 +353,8 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                           errorText: "Polje ne smije biti prazno."),
                       FormBuilderValidators.integer(
                           errorText: "Unesite validan broj."),
-                      FormBuilderValidators.min(1800,
-                          errorText: "Godina ne smije biti manja 1800."),
+                      FormBuilderValidators.min(1899,
+                          errorText: "Godina ne smije biti manja od 1900"),
                       FormBuilderValidators.max(DateTime.now().year,
                           errorText: "Godina ne smije biti veća od trenutne."),
                     ]),
