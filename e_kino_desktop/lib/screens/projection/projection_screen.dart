@@ -48,21 +48,14 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
 
   Future<void> _loadData() async {
     var movieData = await _moviesProvider.get(filter: {
-      'Title': null,
-      'Year': null,
-      'DirectorId': null,
       'Page': 0,
       'PageSize': 100,
     });
     var projectionData = await _projectionsProvider.get(filter: {
-      'DateOfProjection': null,
-      'AuditoriumId': null,
-      'MovieId': null,
       'Page': 0,
       'PageSize': 100,
     });
     var auditoriumData = await _auditoriumProvider.get(filter: {
-      'Name': null,
       'Page': 0,
       'PageSize': 100,
     });
@@ -290,7 +283,6 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
             const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () async {
-                ProjectionData.id = null;
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => AddProjectionScreen(
@@ -437,25 +429,48 @@ class _DataSource extends DataTableSource {
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          ProjectionData.id = e.projectionId;
-          ProjectionData.auditoriumId = e.auditorium?.auditoriumId;
-          ProjectionData.movieId = e.movie?.movieId;
-          ProjectionData.dateOfProjection = e.dateOfProjection;
-          ProjectionData.price = e.ticketPrice;
-
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => AddProjectionScreen(
-                movies: movies,
-                auditorium: auditorium,
-              ),
+                  movies: movies,
+                  auditorium: auditorium,
+                  price: e.ticketPrice,
+                  id: e.projectionId,
+                  movieId: e.movieId,
+                  dateOfProjection: e.dateOfProjection,
+                  auditoriumId: e.auditorium?.auditoriumId),
             ),
           );
         },
       ),
-      DataCell(
-        const Text('Obriši'),
-        onTap: () async {
+      DataCell(const Text('Obriši'), onTap: () async {
+        bool? confirmDelete = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Potvrda brisanja"),
+              content: const Text(
+                  "Da li ste sigurni da želite obrisati ovaj podatak?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "Odustani",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    "Obriši",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirmDelete == true) {
           await _projectionsProvider.delete(e.projectionId!);
           var data = await _projectionsProvider.get(filter: {
             'DateOfProjection': null,
@@ -467,8 +482,9 @@ class _DataSource extends DataTableSource {
 
           result = data;
           moviesStream.add(e.movieId!);
-        },
-      ),
+        }
+        ;
+      }),
     ]);
   }
 

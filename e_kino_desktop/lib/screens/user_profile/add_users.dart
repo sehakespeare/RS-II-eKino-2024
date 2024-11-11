@@ -10,7 +10,26 @@ import '../../models/user_roles.dart';
 import '../../providers/users_provider.dart';
 
 class AddUserScreen extends StatefulWidget {
-  const AddUserScreen({super.key});
+  final int? id;
+  final String? name;
+  final String? lastname;
+  final String? email;
+  final String? phone;
+  final String? userName;
+
+  final List<UserRole>? roleList;
+  final bool? status;
+
+  const AddUserScreen(
+      {super.key,
+      this.id,
+      this.name,
+      this.lastname,
+      this.email,
+      this.phone,
+      this.userName,
+      this.roleList,
+      this.status});
   @override
   State<AddUserScreen> createState() => _RegistrationScreenScreenState();
 }
@@ -24,26 +43,28 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
   void initState() {
     super.initState();
     _usersProvider = context.read<UsersProvider>();
-    if (UsersData.id != null) {
+    if (widget.id != null) {
       List<int>? roleIds = [];
-      for (var element in UsersData.roleList!) {
+      for (var element in widget.roleList!) {
         roleIds.add(element.roleId!);
       }
 
       userData = {
-        "id": UsersData.id,
-        "firstName": UsersData.name,
-        "lastName": UsersData.lastname,
-        "email": UsersData.email,
-        "phone": UsersData.phone,
-        "username": UsersData.userName,
+        "id": widget.id,
+        "firstName": widget.name,
+        "lastName": widget.lastname,
+        "email": widget.email,
+        "phone": widget.phone,
+        "username": widget.userName,
         "password": null,
         "passwordConfirm": null,
-        "status": UsersData.status,
+        "status": widget.status,
         "roleIdList": roleIds
       };
     } else {
-      userData = {};
+      userData = {
+        "status": true,
+      };
     }
     initForm();
   }
@@ -70,7 +91,6 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            UsersData.id = null;
             userData = {};
             _formKey.currentState?.reset();
             Navigator.pop(context);
@@ -93,7 +113,7 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                         if (isValid) {
                           var request = Map.from(_formKey.currentState!.value);
 
-                          if (UsersData.id != null) {
+                          if (widget.id != null) {
                             try {
                               await _usersProvider.update(
                                   userData['id'], request);
@@ -101,7 +121,6 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                               Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => const UsersScreen(),
                               ));
-                              UsersData.id = null;
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -127,26 +146,65 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                             try {
                               await _usersProvider.insert(request);
 
-                              Navigator.pop(context);
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const UsersScreen(),
+                              ));
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
                                     "Uspješno ste dodali korisnika",
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                        color: Color.fromARGB(255, 96, 65, 65)),
                                   ),
                                   backgroundColor: Colors.green,
                                 ),
                               );
                             } on Exception catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    e.toString(),
-                                    style: const TextStyle(color: Colors.white),
+                              if (e.toString() ==
+                                  "Exception: [Username is already in use]") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: const Text("Upozorenje"),
+                                    content: const Text(
+                                        "Korisničko ime već postoji!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              } else if (e.toString() ==
+                                  "Exception: [Email is already in use]") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: const Text("Upozorenje"),
+                                    content: const Text("Email već postoji!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           }
                         }
@@ -175,8 +233,14 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                   labelText: "Ime", labelStyle: TextStyle(color: Colors.black)),
               name: "firstName",
               style: const TextStyle(color: Colors.black),
-              validator: FormBuilderValidators.required(
-                  errorText: "Polje ne smije biti prazno."),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                    errorText: "Polje ne smije biti prazno."),
+                FormBuilderValidators.maxLength(20,
+                    errorText: "Polje može imati najviše 20 karaktera."),
+                FormBuilderValidators.minLength(2,
+                    errorText: "Polje mora imati najmanje 2 karaktera."),
+              ]),
             ),
             const SizedBox(height: 10),
             FormBuilderTextField(
@@ -186,8 +250,14 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
               ),
               name: "lastName",
               style: const TextStyle(color: Colors.black),
-              validator: FormBuilderValidators.required(
-                  errorText: "Polje ne smije biti prazno."),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                    errorText: "Polje ne smije biti prazno."),
+                FormBuilderValidators.maxLength(20,
+                    errorText: "Polje može imati najviše 20 karaktera."),
+                FormBuilderValidators.minLength(2,
+                    errorText: "Polje mora imati najmanje 2 karaktera."),
+              ]),
             ),
             const SizedBox(height: 10),
             FormBuilderTextField(
@@ -213,6 +283,12 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(
                     errorText: "Polje ne smije biti prazno."),
+                FormBuilderValidators.maxLength(10,
+                    errorText: "Broj može imati najviše 10 cifara."),
+                FormBuilderValidators.minLength(9,
+                    errorText: "Broj mora imati najmanje 9 cifara."),
+                FormBuilderValidators.match(r'^0\d{0,9}$',
+                    errorText: "Broj mora početi s nulom."),
               ]),
             ),
             const SizedBox(height: 10),
@@ -222,8 +298,14 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                   labelStyle: TextStyle(color: Colors.black)),
               name: "username",
               style: const TextStyle(color: Colors.black),
-              validator: FormBuilderValidators.required(
-                  errorText: "Polje ne smije biti prazno."),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                    errorText: "Polje ne smije biti prazno."),
+                FormBuilderValidators.maxLength(15,
+                    errorText: "Polje može imati najviše 15 karaktera."),
+                FormBuilderValidators.minLength(4,
+                    errorText: "Polje mora imati najmanje 4 karaktera."),
+              ]),
             ),
             const SizedBox(height: 10),
             FormBuilderTextField(
@@ -233,7 +315,7 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
               name: "password",
               obscureText: true,
               style: const TextStyle(color: Colors.black),
-              validator: UsersData.id != null
+              validator: widget.id != null
                   ? null
                   : FormBuilderValidators.required(
                       errorText: "Polje ne smije biti prazno."),
@@ -244,7 +326,7 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                     labelText: "Ponovite lozinku",
                     labelStyle: TextStyle(color: Colors.black)),
                 name: "passwordConfirm",
-                validator: UsersData.id != null
+                validator: widget.id != null
                     ? null
                     : FormBuilderValidators.compose([
                         FormBuilderValidators.required(
@@ -266,13 +348,13 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                   flex: 1,
                   child: Column(
                     children: [
-                      FormBuilderCheckboxGroup(
+                      FormBuilderCheckboxGroup<int>(
                         wrapDirection: Axis.vertical,
                         orientation: OptionsOrientation.vertical,
                         name: 'roleIdList',
                         options: [
                           FormBuilderFieldOption(
-                            value: values.values.first,
+                            value: values.values.first as int,
                             child: const Text('Administator'),
                           ),
                           FormBuilderFieldOption(
@@ -280,6 +362,10 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                             child: const Text('Client'),
                           )
                         ],
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.minLength(1,
+                              errorText: "Morate označiti barem jednu opciju."),
+                        ]),
                       ),
                     ],
                   ),
@@ -289,9 +375,10 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FormBuilderCheckbox(
-                        initialValue: userData['status'],
-                        name: 'status',
-                        title: const Text('Active')),
+                      initialValue: userData['status'],
+                      name: 'status',
+                      title: const Text('Active'),
+                    ),
                   ),
                 ),
               ],

@@ -159,13 +159,18 @@ abstract class BaseProvider<T> with ChangeNotifier {
     var jsonRequest = jsonEncode(request);
 
     var response = await http!.post(uri, headers: headers, body: jsonRequest);
-
-    if (isValidResponse(response)) {
+    if (response.statusCode == 400) {
       var data = jsonDecode(response.body);
 
-      return fromJson(data);
+      return Future.error(Exception(data['ERROR'] ?? 'Unknown error occurred'));
     } else {
-      throw Exception("Unkown error, please try again!");
+      if (isValidResponse(response)) {
+        var data = jsonDecode(response.body);
+
+        return fromJson(data);
+      } else {
+        throw Exception("Unkown error, please try again!");
+      }
     }
   }
 
@@ -270,56 +275,56 @@ abstract class BaseProvider<T> with ChangeNotifier {
     return query;
   }
 
-  Future<bool> checkUsernameExists(String username) async {
-    var url = "$_baseUrl$_endpoint/checkusername/$username";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  // Future<bool> checkUsernameExists(String username) async {
+  //   var url = "$_baseUrl$_endpoint/checkusername/$username";
+  //   var uri = Uri.parse(url);
+  //   var headers = createHeaders();
 
-    var response = await http!.get(uri, headers: headers);
-    if (isValidResponse(response)) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Unknown error, please try again!");
-    }
-  }
+  //   var response = await http!.get(uri, headers: headers);
+  //   if (isValidResponse(response)) {
+  //     return jsonDecode(response.body);
+  //   } else {
+  //     throw Exception("Unknown error, please try again!");
+  //   }
+  // }
 
-  Future<bool> checkEmailExists(String email) async {
-    var url = "$_baseUrl$_endpoint/checkemail/$email";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  // Future<bool> checkEmailExists(String email) async {
+  //   var url = "$_baseUrl$_endpoint/checkemail/$email";
+  //   var uri = Uri.parse(url);
+  //   var headers = createHeaders();
 
-    var response = await http!.get(uri, headers: headers);
-    if (isValidResponse(response)) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Unknown error, please try again!");
-    }
-  }
+  //   var response = await http!.get(uri, headers: headers);
+  //   if (isValidResponse(response)) {
+  //     return jsonDecode(response.body);
+  //   } else {
+  //     throw Exception("Unknown error, please try again!");
+  //   }
+  // }
 
-  Future<bool> checkPhoneExists(String phone) async {
-    var url = "$_baseUrl$_endpoint/checkphone/$phone";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  // Future<bool> checkPhoneExists(String phone) async {
+  //   var url = "$_baseUrl$_endpoint/checkphone/$phone";
+  //   var uri = Uri.parse(url);
+  //   var headers = createHeaders();
 
-    var response = await http!.get(uri, headers: headers);
-    if (isValidResponse(response)) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Unknown error, please try again!");
-    }
-  }
+  //   var response = await http!.get(uri, headers: headers);
+  //   if (isValidResponse(response)) {
+  //     return jsonDecode(response.body);
+  //   } else {
+  //     throw Exception("Unknown error, please try again!");
+  //   }
+  // }
 
-  Future<Users> getUsername(String username) async {
-    var url = "$_baseUrl$_endpoint/GetUser/$username";
-    var uri = Uri.parse(url);
-    var headers = createHeaders();
+  // Future<Users> getUsername(String username) async {
+  //   var url = "$_baseUrl$_endpoint/GetUser/$username";
+  //   var uri = Uri.parse(url);
+  //   var headers = createHeaders();
 
-    var response = await http!.get(uri, headers: headers);
-    if (isValidResponse(response)) {
-      var userData = jsonDecode(response.body);
-      return Users.fromJson(userData);
-    } else {
-      throw Exception("Unknown error, please try again!");
-    }
-  }
+  //   var response = await http!.get(uri, headers: headers);
+  //   if (isValidResponse(response)) {
+  //     var userData = jsonDecode(response.body);
+  //     return Users.fromJson(userData);
+  //   } else {
+  //     throw Exception("Unknown error, please try again!");
+  //   }
+  // }
 }

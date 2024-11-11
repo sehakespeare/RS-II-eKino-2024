@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using eKino.Model;
 using eKino.Services.Helpers;
 using eKino.Services.Interfaces;
+using Microsoft.ML;
 
 namespace eKino.Services.Implementations
 {
@@ -43,9 +44,17 @@ namespace eKino.Services.Implementations
 
             foreach (var roleId in insert.RoleIdList)
             {
+                //var role = Context.Roles.Find(roleId);
+
+                //if (role == null)
+                //{
+                //    throw new InvalidOperationException($"Role with ID {roleId} not found.");
+                //}
+
                 Database.UserRole userRole = new Database.UserRole
                 {
                     RoleId = roleId,
+                   // Role = role,
                     UserId = entity.UserId,
                     DateModified = DateTime.Now
                 };
@@ -175,9 +184,14 @@ namespace eKino.Services.Implementations
         }
         public async Task<Model.User?> GetUserByUsername(string username)
         {
-            var userEntity = await Context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var userEntity = await Context.Users
+             .Include(u => u.UserRoles)          // Eager load UserRoles
+             .ThenInclude(ur => ur.Role)         // Eager load Role within UserRoles
+             .FirstOrDefaultAsync(u => u.Username == username);
             return userEntity != null ? Mapper.Map<Model.User>(userEntity) : null;
         }
+
+
 
     }
 }

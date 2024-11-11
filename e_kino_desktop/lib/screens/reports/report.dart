@@ -45,9 +45,6 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _loadData() async {
     var movieData = await _moviesProvider.get(filter: {
-      'Title': null,
-      'Year': null,
-      'DirectorId': null,
       'Page': 0,
       'PageSize': 100,
     });

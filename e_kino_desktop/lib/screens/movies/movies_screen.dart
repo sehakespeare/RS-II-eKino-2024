@@ -47,19 +47,14 @@ class _MoviesScreenState extends State<MoviesScreen> {
 
   Future<void> _loadData() async {
     var data = await _moviesProvider.get(filter: {
-      'Title': null,
-      'Year': null,
-      'DirectorId': null,
       'Page': 0,
       'PageSize': 100,
     });
     var directorData = await _direktorProvider.get(filter: {
-      'FullName': null,
       'Page': 0,
       'PageSize': 100,
     });
     var genreData = await _genreProvider.get(filter: {
-      'Name': null,
       'Page': 0,
       'PageSize': 100,
     });
@@ -369,35 +364,64 @@ class _DataSource extends DataTableSource {
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          MovieData.id = e.movieId;
-          MovieData.title = e.title;
-          MovieData.description = e.description;
-          MovieData.photo = e.photo;
-          MovieData.year = e.year;
-          MovieData.directorFullName = directorList
+          List<int> movieGenreIdList = [];
+
+          var directorFullName = directorList
               .firstWhere((element) => element.directorId == e.directorId)
               .fullName!;
           if (e.movieGenres != null) {
             for (var element in e.movieGenres!) {
-              MovieData.movieGenreIdList.add(element.genreId!);
+              movieGenreIdList.add(element.genreId!);
             }
           }
 
-          MovieData.directorId = e.directorId;
-          MovieData.runningTime = e.runningTime.toString();
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => AddMovieScreen(
                 data: directorList,
                 genre: genreList,
+                id: e.movieId,
+                year: e.year,
+                title: e.title,
+                description: e.description,
+                directorId: e.directorId,
+                runningTime: e.runningTime.toString(),
+                photo: e.photo,
+                directorFullName: directorFullName,
+                movieGenreIdList: movieGenreIdList,
               ),
             ),
           );
         },
       ),
-      DataCell(
-        const Text('Obriši'),
-        onTap: () async {
+      DataCell(const Text('Obriši'), onTap: () async {
+        bool? confirmDelete = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Potvrda brisanja"),
+              content: const Text(
+                  "Da li ste sigurni da želite obrisati ovaj podatak?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "Odustani",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    "Obriši",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirmDelete == true) {
           await _moviesProvider.delete(e.movieId!);
           var data = await _moviesProvider.get(filter: {
             'Title': null,
@@ -409,8 +433,9 @@ class _DataSource extends DataTableSource {
 
           result = data;
           moviesStream.add(e.movieId!);
-        },
-      ),
+        }
+        ;
+      }),
     ]);
   }
 

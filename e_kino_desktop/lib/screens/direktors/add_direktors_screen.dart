@@ -15,7 +15,13 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
 class AddDirektorsScreen extends StatefulWidget {
-  const AddDirektorsScreen({super.key});
+  final int? id;
+  final String? fullName;
+  final String? biography;
+  final String? photo;
+
+  const AddDirektorsScreen(
+      {super.key, this.id, this.fullName, this.biography, this.photo});
   @override
   State<AddDirektorsScreen> createState() => _AddDirektorsScreenState();
 }
@@ -29,12 +35,12 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
   void initState() {
     super.initState();
     _direktorProvider = context.read<DirektorProvider>();
-    if (DirectorData.id != null) {
+    if (widget.id != null) {
       userData = {
-        "id": DirectorData.id,
-        "name": DirectorData.name,
-        "photo": base64Decode(DirectorData.photo!),
-        "biography": DirectorData.biography,
+        "id": widget.id,
+        "name": widget.fullName,
+        "photo": base64Decode(widget.photo!),
+        "biography": widget.biography,
       };
     } else {
       userData = {};
@@ -79,7 +85,6 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back), // Postavite ikonu back gumba
           onPressed: () {
-            DirectorData.id = null;
             userData = {};
             _formKey.currentState?.reset();
             Navigator.pop(context);
@@ -107,7 +112,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                               var request =
                                   Map.from(_formKey.currentState!.value);
 
-                              if (DirectorData.id != null) {
+                              if (widget.id != null) {
                                 if (_image != null) {
                                   var imagePath = _image?.path;
                                   // Read image file as bytes
@@ -118,7 +123,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                                   String base64Image = base64Encode(imageBytes);
                                   request['photo'] = base64Image;
                                 } else {
-                                  request['photo'] = DirectorData.photo;
+                                  request['photo'] = widget.photo;
                                 }
 
                                 try {
@@ -129,10 +134,7 @@ class _AddDirektorsScreenState extends State<AddDirektorsScreen> {
                                     builder: (context) =>
                                         const DirektorsScreen(),
                                   ));
-                                  DirectorData.id = null;
-                                  DirectorData.name = null;
-                                  DirectorData.biography = null;
-                                  DirectorData.photo = null;
+
                                   userData = {};
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

@@ -13,8 +13,20 @@ import '../../utils/util.dart';
 class AddProjectionScreen extends StatefulWidget {
   final List<Movies> movies;
   final List<Auditorium> auditorium;
+  final int? id;
+  final int? movieId;
+  final int? auditoriumId;
+  final DateTime? dateOfProjection;
+  final double? price;
   const AddProjectionScreen(
-      {required this.movies, required this.auditorium, super.key});
+      {required this.movies,
+      required this.auditorium,
+      this.auditoriumId,
+      this.dateOfProjection,
+      this.id,
+      this.movieId,
+      this.price,
+      super.key});
   @override
   State<AddProjectionScreen> createState() => _AddProjectionScreenState();
 }
@@ -30,16 +42,15 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
     super.initState();
     _projectionsProvider = context.read<ProjectionsProvider>();
     _controller.addListener(_formatValue);
-    if (ProjectionData.id != null) {
-      _controller =
-          TextEditingController(text: ProjectionData.price.toString());
+    if (widget.id != null) {
+      _controller = TextEditingController(text: widget.price.toString());
 
       userData = {
-        "id": ProjectionData.id,
-        "dateOfProjection": ProjectionData.dateOfProjection,
-        "movieId": ProjectionData.movieId,
-        "ticketPrice": ProjectionData.price,
-        "auditoriumId": ProjectionData.auditoriumId
+        "id": widget.id,
+        "dateOfProjection": widget.dateOfProjection,
+        "movieId": widget.movieId,
+        "ticketPrice": widget.price,
+        "auditoriumId": widget.auditoriumId
       };
     } else {
       userData = {};
@@ -80,7 +91,6 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            ProjectionData.id = null;
             userData = {};
             _formKey.currentState?.reset();
             Navigator.pop(context);
@@ -105,7 +115,7 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
-                            if (ProjectionData.id != null) {
+                            if (widget.id != null) {
                               // _updateUserData(field, value);
                               try {
                                 Map movieData = {
@@ -131,7 +141,7 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                                 };
                                 await _projectionsProvider.update(
                                     userData['id'], movieData);
-                                ProjectionData.id = null;
+
                                 userData = {};
 
                                 Navigator.of(context).push(MaterialPageRoute(
@@ -241,10 +251,21 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                     height: 80,
                     width: 120,
                     child: FormBuilderDropdown<String>(
-                      validator: FormBuilderValidators.required(
-                          errorText: "Polje ne smije biti prazno."),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                            errorText: "Polje ne smije biti prazno."),
+                        (value) {
+                          if (value != null &&
+                              (value.trim().isEmpty || value == "null")) {
+                            return "Polje ne smije biti prazno.";
+                          }
+                          return null;
+                        }
+                      ]),
                       name: 'movieId',
-                      initialValue: userData['movieId'].toString(),
+                      initialValue: userData['movieId'].toString() == 'null'
+                          ? ''
+                          : userData['movieId'].toString(),
                       decoration: const InputDecoration(labelText: "Film"),
                       items: widget.movies
                               .map(
@@ -262,10 +283,22 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                     height: 80,
                     width: 120,
                     child: FormBuilderDropdown<String>(
-                      validator: FormBuilderValidators.required(
-                          errorText: "Polje ne smije biti prazno."),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                            errorText: "Polje ne smije biti prazno."),
+                        (value) {
+                          if (value != null &&
+                              (value.trim().isEmpty || value == "null")) {
+                            return "Polje ne smije biti prazno.";
+                          }
+                          return null;
+                        }
+                      ]),
                       name: 'auditoriumId',
-                      initialValue: userData['auditoriumId'].toString(),
+                      initialValue:
+                          userData['auditoriumId'].toString() == 'null'
+                              ? ''
+                              : userData['auditoriumId'].toString(),
                       decoration: const InputDecoration(labelText: "Sala"),
                       items: widget.auditorium
                               .map(
@@ -289,6 +322,8 @@ class _AddProjectionScreenState extends State<AddProjectionScreen> {
                       inputType: InputType.both,
                       format: DateFormat('yyyy-MM-dd HH:mm'),
                       enabled: true,
+                      validator: FormBuilderValidators.required(
+                          errorText: "Polje ne smije biti prazno."),
                     ),
                   ),
                   FormBuilderTextField(

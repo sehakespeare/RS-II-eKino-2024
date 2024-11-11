@@ -15,7 +15,28 @@ import '../../models/direktor.dart';
 class AddMovieScreen extends StatefulWidget {
   final List<Direktor> data;
   final List<Genre> genre;
-  const AddMovieScreen({required this.data, required this.genre, super.key});
+  final int? id;
+  final String? title;
+  final String? description;
+  final String? photo;
+  final String? runningTime;
+  final int? directorId;
+  final String? directorFullName;
+  final int? year;
+  final List<int>? movieGenreIdList;
+  AddMovieScreen(
+      {required this.data,
+      required this.genre,
+      this.id,
+      this.title,
+      this.description,
+      this.photo,
+      this.runningTime,
+      this.directorId,
+      this.directorFullName,
+      this.year,
+      this.movieGenreIdList,
+      super.key});
   @override
   State<AddMovieScreen> createState() => _AddMovieScreenState();
 }
@@ -29,16 +50,16 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
   void initState() {
     super.initState();
     _moviesProvider = context.read<MoviesProvider>();
-    if (MovieData.id != null) {
+    if (widget.id != null) {
       userData = {
-        "id": MovieData.id,
-        "title": MovieData.title,
-        "description": MovieData.description,
-        "photo": base64Decode(MovieData.photo!),
-        "movieGenreIdList": MovieData.movieGenreIdList,
-        "directorId": MovieData.directorId,
-        "runningTime": MovieData.runningTime,
-        'year': MovieData.year
+        "id": widget.id,
+        "title": widget.title,
+        "description": widget.description,
+        "photo": base64Decode(widget.photo!),
+        "movieGenreIdList": widget.movieGenreIdList,
+        "directorId": widget.directorId,
+        "runningTime": widget.runningTime,
+        'year': widget.year
       };
     }
   }
@@ -92,7 +113,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            MovieData.id = null;
             userData = {};
             _formKey.currentState?.reset();
             Navigator.pop(context);
@@ -115,9 +135,9 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                           var isValid =
                               _formKey.currentState?.saveAndValidate() ?? false;
                           _validateImage();
-                          if (_imageError == null) { 
+                          if (_imageError == null) {
                             if (isValid) {
-                              if (MovieData.id != null) {
+                              if (widget.id != null) {
                                 var request =
                                     Map.from(_formKey.currentState!.value);
                                 if (_image != null) {
@@ -129,7 +149,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                                   String base64Image = base64Encode(imageBytes);
                                   request['photo'] = base64Image;
                                 } else {
-                                  request['photo'] = MovieData.photo;
+                                  request['photo'] = widget.photo;
                                 }
 
                                 Map movieData = {
@@ -154,15 +174,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                                   Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => const MoviesScreen(),
                                   ));
-                                  MovieData.id = null;
-                                  MovieData.title = null;
-                                  MovieData.description = null;
-                                  MovieData.photo = null;
-                                  MovieData.year = null;
-                                  MovieData.directorFullName = null;
 
-                                  MovieData.directorId = null;
-                                  MovieData.runningTime = null;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text(
@@ -353,8 +365,8 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                           errorText: "Polje ne smije biti prazno."),
                       FormBuilderValidators.integer(
                           errorText: "Unesite validan broj."),
-                      FormBuilderValidators.min(1899,
-                          errorText: "Godina ne smije biti manja od 1900"),
+                      FormBuilderValidators.min(1900,
+                          errorText: "Godina ne smije biti manja 1900."),
                       FormBuilderValidators.max(DateTime.now().year,
                           errorText: "Godina ne smije biti veća od trenutne."),
                     ]),
@@ -409,7 +421,15 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                       height: 200,
                       width: 120,
                       child: FormBuilderCheckboxGroup(
-                          name: 'movieGenreIdList', options: fetchedOptions)),
+                        name: 'movieGenreIdList',
+                        options: fetchedOptions,
+                        validator: (List<dynamic>? values) {
+                          if (values == null || values.isEmpty) {
+                            return 'Morate izabrati najmanje jedan žanr!';
+                          }
+                          return null;
+                        },
+                      )),
                 ],
               ),
             ),

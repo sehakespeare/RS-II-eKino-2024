@@ -45,7 +45,6 @@ class _DirektorsScreenState extends State<DirektorsScreen> {
 
   Future<void> _loadData() async {
     var data = await _direktorProvider.get(filter: {
-      'FullName': null,
       'Page': 0,
       'PageSize': 100,
     });
@@ -198,11 +197,6 @@ class _DirektorsScreenState extends State<DirektorsScreen> {
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () async {
-              DirectorData.id = null;
-              DirectorData.name = null;
-              DirectorData.biography = null;
-              DirectorData.photo = null;
-
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const AddDirektorsScreen(),
@@ -312,20 +306,45 @@ class _DataSource extends DataTableSource {
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          DirectorData.id = e.directorId;
-          DirectorData.name = e.fullName;
-          DirectorData.biography = e.biography;
-          DirectorData.photo = e.photo;
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const AddDirektorsScreen(),
+              builder: (context) => AddDirektorsScreen(
+                  id: e.directorId,
+                  fullName: e.fullName,
+                  biography: e.biography,
+                  photo: e.photo),
             ),
           );
         },
       ),
-      DataCell(
-        const Text('Delete'),
-        onTap: () async {
+      DataCell(const Text('Delete'), onTap: () async {
+        bool? confirmDelete = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Potvrda brisanja"),
+              content: const Text(
+                  "Da li ste sigurni da želite obrisati ovaj podatak?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "Odustani",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    "Obriši",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirmDelete == true) {
           await _direktorProvider.delete(e.directorId!);
           var data = await _direktorProvider.get(filter: {
             'FullName': null,
@@ -335,8 +354,9 @@ class _DataSource extends DataTableSource {
 
           result = data;
           direktorStream.add(e.directorId!);
-        },
-      ),
+        }
+        ;
+      }),
     ]);
   }
 

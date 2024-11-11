@@ -37,8 +37,6 @@ class _UsersScreenState extends State<UsersScreen> {
 
   Future<void> _loadData() async {
     var data = await _korisnikProvider.get(filter: {
-      'ImePrezime': null,
-      'UlogaId': null,
       'Page': 0,
       'PageSize': 100,
     });
@@ -350,34 +348,69 @@ class _DataSource extends DataTableSource {
       DataCell(Text(e.firstName.toString())),
       DataCell(Text(e.lastName.toString())),
       DataCell(Text(e.roleNames.toString())),
-      DataCell(FormBuilderCheckbox(
-        enabled: false,
-        name: 'status',
-        title: const Text(''),
-        tristate: e.status!,
-      )),
+      DataCell(
+        Row(
+          children: [
+            Icon(
+              e.status == true
+                  ? Icons.check_box
+                  : Icons.check_box_outline_blank,
+              color: e.status == true
+                  ? Colors.green
+                  : Colors.grey, // Customize the colors
+            ),
+            const SizedBox(width: 8), // Spacing between icon and text
+            const Text(''),
+          ],
+        ),
+      ),
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          UsersData.id = e.userId;
-          UsersData.name = e.firstName;
-          UsersData.lastname = e.lastName;
-          UsersData.userName = e.username;
-          UsersData.email = e.email;
-          UsersData.phone = e.phone;
-          UsersData.status = e.status;
-          UsersData.roleList = e.userRoles;
-
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const AddUserScreen(),
+              builder: (context) => AddUserScreen(
+                email: e.email,
+                name: e.firstName,
+                userName: e.username,
+                id: e.userId,
+                roleList: e.userRoles,
+                lastname: e.lastName,
+                status: e.status,
+                phone: e.phone,
+              ),
             ),
           );
         },
       ),
-      DataCell(
-        const Text('Delete'),
-        onTap: () async {
+      DataCell(const Text('Delete'), onTap: () async {
+        bool? confirmDelete = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Potvrda brisanja"),
+              content: const Text(
+                  "Da li ste sigurni da želite obrisati ovaj podatak?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "Odustani",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    "Obriši",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirmDelete == true) {
           await _korisnikProvider.delete(e.userId!);
           var data = await _korisnikProvider.get(filter: {
             'ImePrezime': null,
@@ -388,8 +421,9 @@ class _DataSource extends DataTableSource {
 
           result = data;
           korisniciStream.add(e.userId!);
-        },
-      ),
+        }
+        ;
+      }),
     ]);
   }
 

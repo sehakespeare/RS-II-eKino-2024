@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 import '../../providers/users_provider.dart';
 
 class AddGenreScreen extends StatefulWidget {
-  const AddGenreScreen({super.key});
+  final int? id;
+  final String? name;
+  const AddGenreScreen({this.id, this.name, super.key});
   @override
   State<AddGenreScreen> createState() => _AddGenreScreenState();
 }
@@ -26,10 +28,10 @@ class _AddGenreScreenState extends State<AddGenreScreen> {
   void initState() {
     super.initState();
     _genreProvider = context.read<GenreProvider>();
-    if (GenreData.id != null) {
+    if (widget.id != null) {
       userData = {
-        "id": GenreData.id,
-        "name": GenreData.name,
+        "id": widget.id,
+        "name": widget.name,
       };
     } else {
       userData = {};
@@ -47,7 +49,6 @@ class _AddGenreScreenState extends State<AddGenreScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back), // Postavite ikonu back gumba
           onPressed: () {
-            GenreData.id = null;
             userData = {};
             _formKey.currentState?.reset();
             Navigator.pop(context);
@@ -72,7 +73,7 @@ class _AddGenreScreenState extends State<AddGenreScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
-                            if (GenreData.id != null) {
+                            if (widget.id != null) {
                               // _updateUserData(field, value);
                               try {
                                 await _genreProvider.update(
@@ -81,8 +82,7 @@ class _AddGenreScreenState extends State<AddGenreScreen> {
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => const GenreScreen(),
                                 ));
-                                GenreData.id = null;
-                                GenreData.name = null;
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(

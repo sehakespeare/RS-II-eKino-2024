@@ -1,9 +1,7 @@
-import 'package:e_kino_desktop/models/auditorium.dart';
 import 'package:e_kino_desktop/models/genre.dart';
 
-import 'package:e_kino_desktop/providers/auditorium_provider.dart';
 import 'package:e_kino_desktop/providers/genre_provider.dart';
-import 'package:e_kino_desktop/providers/users_provider.dart';
+
 import 'package:e_kino_desktop/screens/genre/add_genre.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +9,6 @@ import 'package:provider/provider.dart';
 
 import '../../appbar.dart';
 import '../../models/search_result.dart';
-import '../user_profile/add_users.dart';
 
 import '../../utils/util.dart';
 import 'package:rxdart/rxdart.dart';
@@ -42,7 +39,6 @@ class _GenreScreenState extends State<GenreScreen> {
 
   Future<void> _loadData() async {
     var data = await _genreProvider.get(filter: {
-      'Name': null,
       'Page': 0,
       'PageSize': 100,
     });
@@ -304,18 +300,44 @@ class _DataSource extends DataTableSource {
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          GenreData.id = e.genreId;
-          GenreData.name = e.name;
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const AddGenreScreen(),
+              builder: (context) => AddGenreScreen(
+                id: e.genreId,
+                name: e.name,
+              ),
             ),
           );
         },
       ),
-      DataCell(
-        const Text('Delete'),
-        onTap: () async {
+      DataCell(const Text('Delete'), onTap: () async {
+        bool? confirmDelete = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Potvrda brisanja"),
+              content: const Text(
+                  "Da li ste sigurni da želite obrisati ovaj podatak?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "Odustani",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    "Obriši",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirmDelete == true) {
           await _genreProvider.delete(e.genreId!);
           var data = await _genreProvider.get(filter: {
             'ImePrezime': null,
@@ -326,8 +348,9 @@ class _DataSource extends DataTableSource {
 
           result = data;
           genreStream.add(e.genreId!);
-        },
-      ),
+        }
+        ;
+      }),
     ]);
   }
 

@@ -43,21 +43,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   Future<void> _loadData() async {
     var reservationData = await _reservationProvider.get(filter: {
-      'Title': null,
-      'Year': null,
-      'DirectorId': null,
       'Page': 0,
       'PageSize': 100,
     });
     var projectionData = await _projectionsProvider.get(filter: {
-      'DateOfProjection': null,
-      'AuditoriumId': null,
-      'MovieId': null,
       'Page': 0,
       'PageSize': 100,
     });
     var usersData = await _usersProvider.get(filter: {
-      'Name': null,
       'Page': 0,
       'PageSize': 100,
     });

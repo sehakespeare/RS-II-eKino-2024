@@ -40,7 +40,6 @@ class _AuditoriumScreenState extends State<AuditoriumScreen> {
 
   Future<void> _loadData() async {
     var data = await _auditoriumProvider.get(filter: {
-      'Name': null,
       'Page': 0,
       'PageSize': 100,
     });
@@ -301,18 +300,44 @@ class _DataSource extends DataTableSource {
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          AuditoriumData.id = e.auditoriumId;
-          AuditoriumData.name = e.name;
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const AddAuditoriumScreen(),
+              builder: (context) => AddAuditoriumScreen(
+                auditoriumId: e.auditoriumId!,
+                name: e.name!,
+              ),
             ),
           );
         },
       ),
-      DataCell(
-        const Text('Delete'),
-        onTap: () async {
+      DataCell(const Text('Delete'), onTap: () async {
+        bool? confirmDelete = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Potvrda brisanja"),
+              content: const Text(
+                  "Da li ste sigurni da želite obrisati ovaj podatak?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    "Odustani",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    "Obriši",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        if (confirmDelete == true) {
           await _auditoriumProvider.delete(e.auditoriumId!);
           var data = await _auditoriumProvider.get(filter: {
             'ImePrezime': null,
@@ -323,8 +348,9 @@ class _DataSource extends DataTableSource {
 
           result = data;
           auditoriumStream.add(e.auditoriumId!);
-        },
-      ),
+        }
+        ;
+      }),
     ]);
   }
 

@@ -10,7 +10,9 @@ import 'package:provider/provider.dart';
 import '../../providers/users_provider.dart';
 
 class AddAuditoriumScreen extends StatefulWidget {
-  const AddAuditoriumScreen({super.key});
+  final int? auditoriumId;
+  final String? name;
+  const AddAuditoriumScreen({this.auditoriumId, this.name, super.key});
   @override
   State<AddAuditoriumScreen> createState() => _AddAuditoriumScreenState();
 }
@@ -24,10 +26,10 @@ class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
   void initState() {
     super.initState();
     _usersProvider = context.read<AuditoriumProvider>();
-    if (AuditoriumData.id != null) {
+    if (widget.auditoriumId != null) {
       userData = {
-        "id": AuditoriumData.id,
-        "name": AuditoriumData.name,
+        "id": widget.auditoriumId,
+        "name": widget.name,
       };
     } else {
       userData = {};
@@ -45,7 +47,6 @@ class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back), // Postavite ikonu back gumba
           onPressed: () {
-            AuditoriumData.id = null;
             userData = {};
             _formKey.currentState?.reset();
             Navigator.pop(context);
@@ -70,7 +71,7 @@ class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
                           if (isValid) {
                             var request =
                                 Map.from(_formKey.currentState!.value);
-                            if (AuditoriumData.id != null) {
+                            if (widget.auditoriumId != null) {
                               // _updateUserData(field, value);
                               try {
                                 await _usersProvider.update(
@@ -80,8 +81,7 @@ class _AddAuditoriumScreenState extends State<AddAuditoriumScreen> {
                                   builder: (context) =>
                                       const AuditoriumScreen(),
                                 ));
-                                AuditoriumData.id = null;
-                                AuditoriumData.name = null;
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
