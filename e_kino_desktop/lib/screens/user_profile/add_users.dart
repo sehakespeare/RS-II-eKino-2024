@@ -6,6 +6,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/search_result.dart';
+import '../../models/user.dart';
 import '../../models/user_roles.dart';
 import '../../providers/users_provider.dart';
 
@@ -16,6 +18,7 @@ class AddUserScreen extends StatefulWidget {
   final String? email;
   final String? phone;
   final String? userName;
+  final String? roleNames;
 
   final List<UserRole>? roleList;
   final bool? status;
@@ -29,7 +32,8 @@ class AddUserScreen extends StatefulWidget {
       this.phone,
       this.userName,
       this.roleList,
-      this.status});
+      this.status,
+      this.roleNames});
   @override
   State<AddUserScreen> createState() => _RegistrationScreenScreenState();
 }
@@ -38,11 +42,12 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> userData = {};
   late UsersProvider _usersProvider;
-  late UsersProvider _korisnikProvider;
+
   @override
   void initState() {
     super.initState();
     _usersProvider = context.read<UsersProvider>();
+
     if (widget.id != null) {
       List<int>? roleIds = [];
       for (var element in widget.roleList!) {
@@ -59,7 +64,8 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
         "password": null,
         "passwordConfirm": null,
         "status": widget.status,
-        "roleIdList": roleIds
+        "roleIdList": roleIds,
+        "roleNames": widget.roleNames
       };
     } else {
       userData = {
@@ -132,15 +138,51 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                                 ),
                               );
                             } on Exception catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    e.toString(),
-                                    style: const TextStyle(color: Colors.white),
+                              if (e.toString() ==
+                                  "Exception: [Username is already in use]") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: const Text("Upozorenje"),
+                                    content: const Text(
+                                        "Korisničko ime već postoji!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
                                   ),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                                );
+                              } else if (e.toString() ==
+                                  "Exception: [Email is already in use]") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: const Text("Upozorenje"),
+                                    content: const Text("Email već postoji!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      e.toString(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           } else {
                             try {
@@ -285,8 +327,6 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                     errorText: "Polje ne smije biti prazno."),
                 FormBuilderValidators.maxLength(10,
                     errorText: "Broj može imati najviše 10 cifara."),
-                FormBuilderValidators.minLength(9,
-                    errorText: "Broj mora imati najmanje 9 cifara."),
                 FormBuilderValidators.match(r'^0\d{0,9}$',
                     errorText: "Broj mora početi s nulom."),
               ]),
@@ -352,9 +392,11 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                         wrapDirection: Axis.vertical,
                         orientation: OptionsOrientation.vertical,
                         name: 'roleIdList',
+                        initialValue:
+                            userData['roleIdList']?.take(1).toList() ?? [],
                         options: [
                           FormBuilderFieldOption(
-                            value: values.values.first as int,
+                            value: values.values.first,
                             child: const Text('Administator'),
                           ),
                           FormBuilderFieldOption(
@@ -362,6 +404,29 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                             child: const Text('Client'),
                           )
                         ],
+                        onChanged: (selected) {
+                          if (selected != null && selected.length > 1) {
+                            // Keep only the last selected option in the list
+
+                            // Update the form state
+                            setState(() {
+                              FormBuilder.of(context)
+                                  ?.fields['roleIdList']!
+                                  .reset();
+                              _formKey.currentState!.fields['roleIdList']!
+                                  .reset();
+                            });
+                            selected = [selected!.last];
+                            userData['roleIdList'] = [selected!.last];
+                            _formKey.currentState?.fields['roleIdList']
+                                ?.didChange([selected!.last]);
+                            [selected!.last];
+                            FormBuilder.of(context)
+                                ?.fields['roleIdList']
+                                ?.didChange([selected!.last]);
+                            setState(() {});
+                          }
+                        },
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.minLength(1,
                               errorText: "Morate označiti barem jednu opciju."),

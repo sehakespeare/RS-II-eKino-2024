@@ -367,20 +367,25 @@ class _DataSource extends DataTableSource {
       DataCell(
         const Text('Edit'),
         onTap: () async {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => AddUserScreen(
-                email: e.email,
-                name: e.firstName,
-                userName: e.username,
-                id: e.userId,
-                roleList: e.userRoles,
-                lastname: e.lastName,
-                status: e.status,
-                phone: e.phone,
+          var data = await _korisnikProvider.getUsername(e.username!);
+
+          Future.delayed(const Duration(seconds: 1)).then((value) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddUserScreen(
+                  email: e.email,
+                  name: e.firstName,
+                  userName: e.username,
+                  id: e.userId,
+                  roleList: data.userRoles,
+                  lastname: e.lastName,
+                  status: e.status,
+                  phone: e.phone,
+                  roleNames: data.roleNames,
+                ),
               ),
-            ),
-          );
+            );
+          });
         },
       ),
       DataCell(const Text('Delete'), onTap: () async {

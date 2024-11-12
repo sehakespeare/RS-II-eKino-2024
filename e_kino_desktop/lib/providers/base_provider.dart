@@ -314,17 +314,17 @@ abstract class BaseProvider<T> with ChangeNotifier {
   //   }
   // }
 
-  // Future<Users> getUsername(String username) async {
-  //   var url = "$_baseUrl$_endpoint/GetUser/$username";
-  //   var uri = Uri.parse(url);
-  //   var headers = createHeaders();
+  Future<Users> getUsername(String username) async {
+    var url = "$_baseUrl$_endpoint/GetUser/$username";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
 
-  //   var response = await http!.get(uri, headers: headers);
-  //   if (isValidResponse(response)) {
-  //     var userData = jsonDecode(response.body);
-  //     return Users.fromJson(userData);
-  //   } else {
-  //     throw Exception("Unknown error, please try again!");
-  //   }
-  // }
+    var response = await http!.get(uri, headers: headers);
+    if (isValidResponse(response)) {
+      var userData = jsonDecode(response.body);
+      return Users.fromJson(userData);
+    } else {
+      throw Exception("Unknown error, please try again!");
+    }
+  }
 }
