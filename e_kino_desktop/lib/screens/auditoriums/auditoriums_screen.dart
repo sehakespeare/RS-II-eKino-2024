@@ -143,7 +143,6 @@ class _AuditoriumScreenState extends State<AuditoriumScreen> {
                 _nameController.clear();
 
                 var data = await _auditoriumProvider.get(filter: {
-                  'Name': null,
                   'Page': 0,
                   'PageSize': 100,
                 });
