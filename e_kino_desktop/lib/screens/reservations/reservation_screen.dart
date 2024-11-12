@@ -196,8 +196,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                   _formKey.currentState?.fields['ProjectionId']?.reset();
 
                   var data = await _reservationProvider.get(filter: {
-                    'UserId': null,
-                    'ProjectionId': null,
                     'Page': 0,
                     'PageSize': 100,
                   });

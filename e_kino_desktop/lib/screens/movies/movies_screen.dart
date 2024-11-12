@@ -175,9 +175,6 @@ class _MoviesScreenState extends State<MoviesScreen> {
                 _imePrezimeController.clear();
                 _usernameController.clear();
                 var data = await _moviesProvider.get(filter: {
-                  'Title': null,
-                  'Year': null,
-                  'DirectorId': null,
                   'Page': 0,
                   'PageSize': 100,
                 });
@@ -206,7 +203,6 @@ class _MoviesScreenState extends State<MoviesScreen> {
                   'Year': _imePrezimeController.text != ''
                       ? int.parse(_imePrezimeController.text)
                       : null,
-                  'DirectorId': null,
                   'Page': 0,
                   'PageSize': 100,
                 });
@@ -424,9 +420,6 @@ class _DataSource extends DataTableSource {
         if (confirmDelete == true) {
           await _moviesProvider.delete(e.movieId!);
           var data = await _moviesProvider.get(filter: {
-            'Title': null,
-            'Year': null,
-            'DirectorId': null,
             'Page': 0,
             'PageSize': 100,
           });

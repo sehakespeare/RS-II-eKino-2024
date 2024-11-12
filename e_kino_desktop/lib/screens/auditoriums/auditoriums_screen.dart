@@ -340,8 +340,6 @@ class _DataSource extends DataTableSource {
         if (confirmDelete == true) {
           await _auditoriumProvider.delete(e.auditoriumId!);
           var data = await _auditoriumProvider.get(filter: {
-            'ImePrezime': null,
-            'UlogaId': null,
             'Page': 0,
             'PageSize': 100,
           });

@@ -347,7 +347,6 @@ class _DataSource extends DataTableSource {
         if (confirmDelete == true) {
           await _direktorProvider.delete(e.directorId!);
           var data = await _direktorProvider.get(filter: {
-            'FullName': null,
             'Page': 0,
             'PageSize': 100,
           });

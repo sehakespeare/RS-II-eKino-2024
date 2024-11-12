@@ -340,8 +340,6 @@ class _DataSource extends DataTableSource {
         if (confirmDelete == true) {
           await _genreProvider.delete(e.genreId!);
           var data = await _genreProvider.get(filter: {
-            'ImePrezime': null,
-            'UlogaId': null,
             'Page': 0,
             'PageSize': 100,
           });

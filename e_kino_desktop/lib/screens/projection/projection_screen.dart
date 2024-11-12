@@ -215,9 +215,6 @@ class _ProjectionScreenState extends State<ProjectionScreen> {
                   _imePrezimeController.clear();
                   _usernameController.clear();
                   var data = await _projectionsProvider.get(filter: {
-                    'DateOfProjection': null,
-                    'AuditoriumId': null,
-                    'MovieId': null,
                     'Page': 0,
                     'PageSize': 100,
                   });
@@ -473,9 +470,6 @@ class _DataSource extends DataTableSource {
         if (confirmDelete == true) {
           await _projectionsProvider.delete(e.projectionId!);
           var data = await _projectionsProvider.get(filter: {
-            'DateOfProjection': null,
-            'AuditoriumId': null,
-            'MovieId': null,
             'Page': 0,
             'PageSize': 100,
           });

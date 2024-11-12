@@ -156,8 +156,6 @@ class _UsersScreenState extends State<UsersScreen> {
                 _imePrezimeController.clear();
 
                 var data = await _korisnikProvider.get(filter: {
-                  'Username': null,
-                  'Name': null,
                   'Page': 0,
                   'PageSize': 100,
                 });
@@ -418,8 +416,6 @@ class _DataSource extends DataTableSource {
         if (confirmDelete == true) {
           await _korisnikProvider.delete(e.userId!);
           var data = await _korisnikProvider.get(filter: {
-            'ImePrezime': null,
-            'UlogaId': null,
             'Page': 0,
             'PageSize': 100,
           });
