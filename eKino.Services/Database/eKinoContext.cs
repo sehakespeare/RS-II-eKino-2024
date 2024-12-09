@@ -26,6 +26,9 @@ namespace eKino.Services.Database
         public virtual DbSet<Reservation> Reservations { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Transaction> Transactions { get; set; } = null!;
+        public virtual DbSet<Spol> Spols { get; set; } = null!;
+        public virtual DbSet<RadniStatus> RadniStatuses { get; set; } = null!;
+        public virtual DbSet<StepenObrazovanja> StepenObrazovanjas { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UserRole> UserRoles { get; set; } = null!;
 

@@ -15,6 +15,9 @@ namespace eKino.Model
         public string Phone { get; set; }
         public string Username { get; set; }
         public bool? Status { get; set; }
+        public int? SpolId { get; set; }
+        public int? RadniStatusId { get; set; }
+        public int? StepenObrazovanjaId { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
 

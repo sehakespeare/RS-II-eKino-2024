@@ -18,6 +18,24 @@ namespace eKino.Services.Database
             modelBuilder.Entity<Role>().HasData(new Role { RoleId = 2, Name = "Client" });
             #endregion
 
+            #region Spol
+            modelBuilder.Entity<Spol>().HasData(new Spol { SpolId = 1, Naziv = "Muski" });
+            modelBuilder.Entity<Spol>().HasData(new Spol { SpolId = 2, Naziv = "Zenski" });
+            #endregion
+
+            #region RadniStatus
+            modelBuilder.Entity<RadniStatus>().HasData(new RadniStatus { RadniStatusId = 1, Naziv = "Zaposlen" });
+            modelBuilder.Entity<RadniStatus>().HasData(new RadniStatus { RadniStatusId = 2, Naziv = "Nezaposlen" });
+            #endregion
+
+            #region StepenObrazovanja
+            modelBuilder.Entity<StepenObrazovanja>().HasData(new StepenObrazovanja { StepenObrazovanjaId = 1, Naziv = "Osnovno" });
+            modelBuilder.Entity<StepenObrazovanja>().HasData(new StepenObrazovanja { StepenObrazovanjaId = 2, Naziv = "Srednje" });
+            modelBuilder.Entity<StepenObrazovanja>().HasData(new StepenObrazovanja { StepenObrazovanjaId = 3, Naziv = "Bachelor (Osnovne studije)" });
+            modelBuilder.Entity<StepenObrazovanja>().HasData(new StepenObrazovanja { StepenObrazovanjaId = 4, Naziv = "Master" });
+            modelBuilder.Entity<StepenObrazovanja>().HasData(new StepenObrazovanja { StepenObrazovanjaId = 5, Naziv = "Doktorat" });
+            #endregion
+
             #region Users - Admin and client
             int userID = 0;
 
@@ -33,6 +51,7 @@ namespace eKino.Services.Database
                 PasswordSalt = "7TUJfmgkkDvcY3PB/M4fhg==",
                 Phone = "061456789",
                 Status = true
+                
             });
 
             //u:client p:client
@@ -46,7 +65,10 @@ namespace eKino.Services.Database
                 PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                 PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                 Phone = "061123123",
-                Status = true
+                Status = true,
+                SpolId = 1,
+                RadniStatusId = 1,
+                StepenObrazovanjaId = 3
             });
 
 
@@ -69,7 +91,10 @@ namespace eKino.Services.Database
                     PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                     PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                     Phone = "061123123",
-                    Status = true
+                    Status = true,
+                    SpolId = 1,
+                    RadniStatusId = 1,
+                    StepenObrazovanjaId = 3
                 });
                 modelBuilder.Entity<UserRole>().HasData(new UserRole() { UserRoleId = UID, UserId = UID, RoleId = 2, DateModified = DateTime.Today });
             }

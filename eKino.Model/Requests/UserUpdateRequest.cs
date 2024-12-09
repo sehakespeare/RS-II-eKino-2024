@@ -26,6 +26,9 @@ namespace eKino.Model.Requests
         public string PasswordConfirm { get; set; }
 
         public bool? Status { get; set; }
+        public int? SpolId { get; set; }
+        public int? RadniStatusId { get; set; }
+        public int? StepenObrazovanjaId { get; set; }
 
         public List<int> RoleIdList { get; set; } = new List<int> { };
     }

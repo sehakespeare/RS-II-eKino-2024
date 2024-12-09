@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eKino.Services.Database;
 
@@ -11,9 +12,10 @@ using eKino.Services.Database;
 namespace eKino.Services.Migrations
 {
     [DbContext(typeof(eKinoContext))]
-    partial class eKinoContextModelSnapshot : ModelSnapshot
+    [Migration("20241209225130_AddSpolToUser")]
+    partial class AddSpolToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -971,40 +973,6 @@ namespace eKino.Services.Migrations
                         });
                 });
 
-            modelBuilder.Entity("eKino.Services.Database.RadniStatus", b =>
-                {
-                    b.Property<int>("RadniStatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RadniStatusId"), 1L, 1);
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Naziv")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RadniStatusId");
-
-                    b.ToTable("RadniStatuses");
-
-                    b.HasData(
-                        new
-                        {
-                            RadniStatusId = 1,
-                            IsDeleted = false,
-                            Naziv = "Zaposlen"
-                        },
-                        new
-                        {
-                            RadniStatusId = 2,
-                            IsDeleted = false,
-                            Naziv = "Nezaposlen"
-                        });
-                });
-
             modelBuilder.Entity("eKino.Services.Database.Rating", b =>
                 {
                     b.Property<int>("RatingId")
@@ -1040,7 +1008,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 1,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 1,
                             UserId = 4,
@@ -1049,7 +1017,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 2,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 2,
                             UserId = 4,
@@ -1058,7 +1026,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 3,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 3,
                             UserId = 4,
@@ -1067,7 +1035,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 4,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 4,
                             UserId = 4,
@@ -1076,7 +1044,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 5,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 5,
                             UserId = 4,
@@ -1085,7 +1053,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 6,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 6,
                             UserId = 4,
@@ -1094,7 +1062,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 7,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 7,
                             UserId = 4,
@@ -1103,7 +1071,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 8,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 8,
                             UserId = 4,
@@ -1112,7 +1080,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 9,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 9,
                             UserId = 4,
@@ -1121,7 +1089,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 10,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 1,
                             UserId = 3,
@@ -1130,7 +1098,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 11,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 2,
                             UserId = 3,
@@ -1139,7 +1107,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 12,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 3,
                             UserId = 3,
@@ -1148,7 +1116,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 13,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 4,
                             UserId = 3,
@@ -1157,7 +1125,7 @@ namespace eKino.Services.Migrations
                         new
                         {
                             RatingId = 14,
-                            DateOfRating = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateOfRating = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             IsDeleted = false,
                             MovieId = 5,
                             UserId = 3,
@@ -1488,58 +1456,6 @@ namespace eKino.Services.Migrations
                         });
                 });
 
-            modelBuilder.Entity("eKino.Services.Database.StepenObrazovanja", b =>
-                {
-                    b.Property<int>("StepenObrazovanjaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StepenObrazovanjaId"), 1L, 1);
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Naziv")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StepenObrazovanjaId");
-
-                    b.ToTable("StepenObrazovanjas");
-
-                    b.HasData(
-                        new
-                        {
-                            StepenObrazovanjaId = 1,
-                            IsDeleted = false,
-                            Naziv = "Osnovno"
-                        },
-                        new
-                        {
-                            StepenObrazovanjaId = 2,
-                            IsDeleted = false,
-                            Naziv = "Srednje"
-                        },
-                        new
-                        {
-                            StepenObrazovanjaId = 3,
-                            IsDeleted = false,
-                            Naziv = "Bachelor (Osnovne studije)"
-                        },
-                        new
-                        {
-                            StepenObrazovanjaId = 4,
-                            IsDeleted = false,
-                            Naziv = "Master"
-                        },
-                        new
-                        {
-                            StepenObrazovanjaId = 5,
-                            IsDeleted = false,
-                            Naziv = "Doktorat"
-                        });
-                });
-
             modelBuilder.Entity("eKino.Services.Database.Transaction", b =>
                 {
                     b.Property<int>("TransactionId")
@@ -1661,17 +1577,11 @@ namespace eKino.Services.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RadniStatusId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("SpolId")
                         .HasColumnType("int");
 
                     b.Property<bool?>("Status")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("StepenObrazovanjaId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -1679,11 +1589,7 @@ namespace eKino.Services.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("RadniStatusId");
-
                     b.HasIndex("SpolId");
-
-                    b.HasIndex("StepenObrazovanjaId");
 
                     b.ToTable("Users");
 
@@ -1711,10 +1617,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client"
                         },
                         new
@@ -1727,10 +1631,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client1"
                         },
                         new
@@ -1743,10 +1645,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client2"
                         },
                         new
@@ -1759,10 +1659,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client3"
                         },
                         new
@@ -1775,10 +1673,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client4"
                         },
                         new
@@ -1791,10 +1687,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client5"
                         },
                         new
@@ -1807,10 +1701,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client6"
                         },
                         new
@@ -1823,10 +1715,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client7"
                         },
                         new
@@ -1839,10 +1729,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client8"
                         },
                         new
@@ -1855,10 +1743,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client9"
                         },
                         new
@@ -1871,10 +1757,8 @@ namespace eKino.Services.Migrations
                             PasswordHash = "Qt4/SE4hNB9rKyspn+e8q4C79Sw=",
                             PasswordSalt = "l6n9Ck0LvsyNX1/V47AePQ==",
                             Phone = "061123123",
-                            RadniStatusId = 1,
                             SpolId = 1,
                             Status = true,
-                            StepenObrazovanjaId = 3,
                             Username = "client10"
                         });
                 });
@@ -1908,84 +1792,84 @@ namespace eKino.Services.Migrations
                         new
                         {
                             UserRoleId = 1,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 1,
                             UserId = 1
                         },
                         new
                         {
                             UserRoleId = 2,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 2
                         },
                         new
                         {
                             UserRoleId = 3,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 3
                         },
                         new
                         {
                             UserRoleId = 4,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 4
                         },
                         new
                         {
                             UserRoleId = 5,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 5
                         },
                         new
                         {
                             UserRoleId = 6,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 6
                         },
                         new
                         {
                             UserRoleId = 7,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 7
                         },
                         new
                         {
                             UserRoleId = 8,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 8
                         },
                         new
                         {
                             UserRoleId = 9,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 9
                         },
                         new
                         {
                             UserRoleId = 10,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 10
                         },
                         new
                         {
                             UserRoleId = 11,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 11
                         },
                         new
                         {
                             UserRoleId = 12,
-                            DateModified = new DateTime(2024, 12, 10, 0, 0, 0, 0, DateTimeKind.Local),
+                            DateModified = new DateTime(2024, 12, 9, 0, 0, 0, 0, DateTimeKind.Local),
                             RoleId = 2,
                             UserId = 12
                         });
@@ -2099,23 +1983,11 @@ namespace eKino.Services.Migrations
 
             modelBuilder.Entity("eKino.Services.Database.User", b =>
                 {
-                    b.HasOne("eKino.Services.Database.RadniStatus", "RadniStatus")
-                        .WithMany("Users")
-                        .HasForeignKey("RadniStatusId");
-
                     b.HasOne("eKino.Services.Database.Spol", "Spol")
                         .WithMany("Users")
                         .HasForeignKey("SpolId");
 
-                    b.HasOne("eKino.Services.Database.StepenObrazovanja", "StepenObrazovanja")
-                        .WithMany("Users")
-                        .HasForeignKey("StepenObrazovanjaId");
-
-                    b.Navigation("RadniStatus");
-
                     b.Navigation("Spol");
-
-                    b.Navigation("StepenObrazovanja");
                 });
 
             modelBuilder.Entity("eKino.Services.Database.UserRole", b =>
@@ -2147,22 +2019,12 @@ namespace eKino.Services.Migrations
                     b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("eKino.Services.Database.RadniStatus", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("eKino.Services.Database.Role", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("eKino.Services.Database.Spol", b =>
-                {
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("eKino.Services.Database.StepenObrazovanja", b =>
                 {
                     b.Navigation("Users");
                 });

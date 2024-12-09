@@ -20,6 +20,17 @@ namespace eKino.Services.Database
         public string PasswordSalt { get; set; } = null!;
         public bool? Status { get; set; }
 
+        public int? SpolId { get; set; } 
+        public virtual Spol? Spol { get; set; }
+
+        public int? RadniStatusId { get; set; }
+        public virtual RadniStatus? RadniStatus { get; set; }
+
+        public int? StepenObrazovanjaId { get; set; }
+        public virtual StepenObrazovanja? StepenObrazovanja { get; set; }
+
+
+
         public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }
