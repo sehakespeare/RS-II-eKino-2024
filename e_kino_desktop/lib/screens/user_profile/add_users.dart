@@ -22,6 +22,9 @@ class AddUserScreen extends StatefulWidget {
 
   final List<UserRole>? roleList;
   final bool? status;
+  final int? spolId;
+  final int? stepenObrazovanjaId;
+  final int? radniStatusId;
 
   const AddUserScreen(
       {super.key,
@@ -33,7 +36,10 @@ class AddUserScreen extends StatefulWidget {
       this.userName,
       this.roleList,
       this.status,
-      this.roleNames});
+      this.roleNames,
+      this.spolId,
+      this.radniStatusId,
+      this.stepenObrazovanjaId});
   @override
   State<AddUserScreen> createState() => _RegistrationScreenScreenState();
 }
@@ -65,7 +71,10 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
         "passwordConfirm": null,
         "status": widget.status,
         "roleIdList": roleIds,
-        "roleNames": widget.roleNames
+        "roleNames": widget.roleNames,
+        "spolId": widget.spolId,
+        "radniStatusId": widget.radniStatusId,
+        "stepenObrazovanjaId": widget.stepenObrazovanjaId
       };
     } else {
       userData = {
@@ -85,7 +94,21 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
     'Administrator': 1,
     'Client': 2,
   };
-
+  List<DropdownMenuItem<int>> employmentStatusOptions = [
+    DropdownMenuItem(value: 1, child: Text("Zaposlen")),
+    DropdownMenuItem(value: 2, child: Text("Nezaposlen")),
+  ];
+  List<DropdownMenuItem<int>> ganresOptions = [
+    DropdownMenuItem(value: 1, child: Text("Muški")),
+    DropdownMenuItem(value: 2, child: Text("Ženski")),
+  ];
+  List<DropdownMenuItem<int>> educationLevelOptions = [
+    DropdownMenuItem(value: 1, child: Text("Osnovno")),
+    DropdownMenuItem(value: 2, child: Text("Srednje")),
+    DropdownMenuItem(value: 3, child: Text("Bachelor (Osnovne studije)")),
+    DropdownMenuItem(value: 4, child: Text("Master")),
+    DropdownMenuItem(value: 5, child: Text("Doktorat")),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -380,6 +403,76 @@ class _RegistrationScreenScreenState extends State<AddUserScreen> {
                       ]),
                 obscureText: true,
                 style: const TextStyle(color: Colors.black)),
+            SizedBox(
+              height: 80,
+              width: 120,
+              child: FormBuilderDropdown<int>(
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                      errorText: "Polje ne smije biti prazno."),
+                  (value) {
+                    if (value != null &&
+                        (value.toString() == null || value == "null")) {
+                      return "Polje ne smije biti prazno.";
+                    }
+                    return null;
+                  }
+                ]),
+                name: 'spolId',
+                initialValue: userData['spolId'] == 0 ? '' : userData['spolId'],
+                decoration: const InputDecoration(labelText: "Spol"),
+                items: ganresOptions,
+                enabled: true,
+              ),
+            ),
+            SizedBox(
+              height: 80,
+              width: 120,
+              child: FormBuilderDropdown<int>(
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                      errorText: "Polje ne smije biti prazno."),
+                  (value) {
+                    if (value != null &&
+                        (value.toString() == null || value == "null")) {
+                      return "Polje ne smije biti prazno.";
+                    }
+                    return null;
+                  }
+                ]),
+                name: 'radniStatusId',
+                initialValue: userData['radniStatusId'] == 0
+                    ? ''
+                    : userData['radniStatusId'],
+                decoration: const InputDecoration(labelText: "Radni status"),
+                items: employmentStatusOptions,
+                enabled: true,
+              ),
+            ),
+            SizedBox(
+              height: 80,
+              width: 120,
+              child: FormBuilderDropdown<int>(
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                      errorText: "Polje ne smije biti prazno."),
+                  (value) {
+                    if (value != null &&
+                        (value.toString() == null || value == "null")) {
+                      return "Polje ne smije biti prazno.";
+                    }
+                    return null;
+                  }
+                ]),
+                name: 'stepenObrazovanjaId',
+                initialValue: userData['stepenObrazovanjaId'] == 0
+                    ? ''
+                    : userData['stepenObrazovanjaId'],
+                decoration: const InputDecoration(labelText: "Stepen obrazovanja"),
+                items: educationLevelOptions,
+                enabled: true,
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

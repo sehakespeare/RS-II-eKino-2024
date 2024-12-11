@@ -27,6 +27,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   late TextEditingController _newPasswordController;
   late TextEditingController _confirmPasswordController;
 
+  // Mape za prevođenje int vrijednosti u stringove
+  final Map<int, String> spolValues = {1: 'Muški', 2: 'Ženski'};
+  final Map<int, String> radniStatusValues = {1: 'Zaposlen', 2: 'Nezaposlen'};
+  final Map<int, String> stepenObrazovanjaValues = {
+    1: 'Osnovno',
+    2: 'Srednje',
+    3: 'Bachelor (Osnovne studije)',
+    4: 'Master',
+    5: 'Doktorat'
+  };
+
   Future<String?> _retrieveAndPrintUsernameState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? usernameState = prefs.getString('usernameState');
@@ -69,7 +80,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               "phone": _user?.phone ?? '',
               "username": _user?.username ?? '',
               "status": _user?.status ?? '',
-              "roleIdList": [2]
+              "roleIdList": [2],
+              "spolId": _user?.spolId,
+              "radniStatusId": _user?.radniStatusId,
+              "stepenObrazovanjaId": _user?.stepenObrazovanjaId
             };
           });
         }
@@ -83,7 +97,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  void _updateUserData(String field, String? value) {
+  void _updateUserData(String field, dynamic value) {
     if (value != null) {
       setState(() {
         userData[field] = value;
@@ -167,16 +181,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             : Column(
                 children: [
                   _buildForm(),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () => _saveUserData(context),
                     child: const Text('Spasi izmjene'),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       showDialog(
@@ -238,7 +248,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     const SizedBox(height: 32.0),
                                     ElevatedButton(
                                       onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
+                                        if (_formPasswordKey.currentState!
+                                            .validate()) {
                                           _changePassword();
                                         }
                                       },
@@ -278,13 +289,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onChanged: (value) => _updateUserData('lastName', value),
           ),
           FormBuilderTextField(
-            name: 'Korisničko ime',
-            decoration: const InputDecoration(labelText: 'Korisničko ime'),
-            initialValue: userData['username'] ?? '',
-            onChanged: (value) => _updateUserData('username', value),
-          ),
-          FormBuilderTextField(
-            name: 'email',
+            name: 'Email',
             decoration: const InputDecoration(labelText: 'Email'),
             initialValue: userData['email'] ?? '',
             onChanged: (value) => _updateUserData('email', value),
@@ -294,6 +299,48 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             decoration: const InputDecoration(labelText: 'Telefon'),
             initialValue: userData['phone'] ?? '',
             onChanged: (value) => _updateUserData('phone', value),
+          ),
+          FormBuilderTextField(
+            name: 'Username',
+            decoration: const InputDecoration(labelText: 'Username'),
+            initialValue: userData['username'] ?? '',
+            onChanged: (value) => _updateUserData('username', value),
+          ),
+          FormBuilderDropdown<int>(
+            name: 'Spol',
+            decoration: const InputDecoration(labelText: 'Spol'),
+            initialValue: userData['spolId'],
+            onChanged: (value) => _updateUserData('spolId', value),
+            items: spolValues.entries
+                .map((entry) => DropdownMenuItem<int>(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    ))
+                .toList(),
+          ),
+          FormBuilderDropdown<int>(
+            name: 'Radni status',
+            decoration: const InputDecoration(labelText: 'Radni status'),
+            initialValue: userData['radniStatusId'],
+            onChanged: (value) => _updateUserData('radniStatusId', value),
+            items: radniStatusValues.entries
+                .map((entry) => DropdownMenuItem<int>(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    ))
+                .toList(),
+          ),
+          FormBuilderDropdown<int>(
+            name: 'Stepen obrazovanja',
+            decoration: const InputDecoration(labelText: 'Stepen obrazovanja'),
+            initialValue: userData['stepenObrazovanjaId'],
+            onChanged: (value) => _updateUserData('stepenObrazovanjaId', value),
+            items: stepenObrazovanjaValues.entries
+                .map((entry) => DropdownMenuItem<int>(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    ))
+                .toList(),
           ),
         ],
       ),

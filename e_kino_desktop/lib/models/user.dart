@@ -14,9 +14,21 @@ class Users {
   String? phone;
   List<UserRole>? userRoles;
   String? roleNames;
+  int? spolId;
+  int? radniStatusId;
+  int? stepenObrazovanjaId;
 
-  Users(this.userId, this.firstName, this.lastName, this.username, this.status,
-      this.email, this.phone);
+  Users(
+      this.userId,
+      this.firstName,
+      this.lastName,
+      this.username,
+      this.status,
+      this.email,
+      this.phone,
+      this.spolId,
+      this.radniStatusId,
+      this.stepenObrazovanjaId);
 
   factory Users.fromJson(Map<String, dynamic> json) => _$UsersFromJson(json);
   Map<String, dynamic> toJson() => _$UsersToJson(this);

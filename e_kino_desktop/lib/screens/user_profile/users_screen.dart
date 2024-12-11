@@ -291,6 +291,30 @@ class _UsersScreenState extends State<UsersScreen> {
                   DataColumn(
                     label: Expanded(
                       child: Text(
+                        'Spol',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        'Radni status',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        'Stepen obrazovanja',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
                         '',
                         style: TextStyle(fontStyle: FontStyle.italic),
                       ),
@@ -331,6 +355,23 @@ class _DataSource extends DataTableSource {
     return Colors.transparent;
   }
 
+  String getEducationLevelText(int level) {
+    switch (level) {
+      case 1:
+        return 'Osnovno';
+      case 2:
+        return 'Srednje';
+      case 3:
+        return 'Bachelor (Osnovne studije)';
+      case 4:
+        return 'Master';
+      case 5:
+        return 'Doktorat';
+      default:
+        return 'Nepoznat stepen obrazovanja'; // Ako vrednost nije prepoznata
+    }
+  }
+
   @override
   DataRow? getRow(int index) {
     if (index >= data.length) {
@@ -338,7 +379,8 @@ class _DataSource extends DataTableSource {
     }
 
     final e = data[index];
-
+    String genderText = e.spolId == 2 ? 'Ženski' : 'Muški';
+    String employmentStatus = e.radniStatusId == 1 ? 'Zaposlen' : 'Nezaposlen';
     return DataRow(cells: [
       DataCell(
         Text(e.email.toString()),
@@ -362,6 +404,12 @@ class _DataSource extends DataTableSource {
           ],
         ),
       ),
+      DataCell(Text(e.spolId != null ? genderText.toString() : '/')),
+      DataCell(
+          Text(e.radniStatusId != null ? employmentStatus.toString() : '/')),
+      DataCell(Text(e.stepenObrazovanjaId != null
+          ? getEducationLevelText(e.stepenObrazovanjaId!)
+          : '/')),
       DataCell(
         const Text('Edit'),
         onTap: () async {
@@ -380,6 +428,9 @@ class _DataSource extends DataTableSource {
                   status: e.status,
                   phone: e.phone,
                   roleNames: data.roleNames,
+                  radniStatusId: e.radniStatusId,
+                  spolId: e.spolId,
+                  stepenObrazovanjaId: e.stepenObrazovanjaId,
                 ),
               ),
             );
